@@ -38,6 +38,10 @@ export async function registerStaticRoutes(
       decorateReply: false,
       redirect: true,
     });
+    // fastify-static's `redirect` only covers directories inside the prefix;
+    // the bare prefix itself (e.g. /widget) would 404 without this.
+    const bare = mount.prefix.slice(0, -1);
+    app.get(bare, (_request, reply) => reply.redirect(mount.prefix));
     console.log(`[wheellive] serving ${mount.name} at ${mount.prefix}`);
     if (mount.name === 'panel') {
       panelMounted = true;
