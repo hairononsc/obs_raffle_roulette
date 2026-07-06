@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "type": "theme.set",
+  "ts": 1730000008000,
+  "requestId": "req-008",
+  "payload": {
+    "themeId": "casino"
+  }
+}

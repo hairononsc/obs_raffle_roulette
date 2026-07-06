@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "type": "queue.remove",
+  "ts": 1730000002000,
+  "requestId": "req-002",
+  "payload": {
+    "entryId": "entry-8f2c"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "v": 1,
+  "type": "settings.update",
+  "ts": 1730000007000,
+  "requestId": "req-007",
+  "payload": {
+    "settings": {
+      "durationMs": 8000,
+      "extraRotations": {
+        "min": 4,
+        "max": 7
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "v": 1,
+  "type": "state.sync",
+  "ts": 1730000000500,
+  "payload": {
+    "settings": {
+      "durationMs": 8000,
+      "extraRotations": {
+        "min": 4,
+        "max": 7
+      }
+    },
+    "themeId": "casino",
+    "prizes": [
+      {
+        "id": "prize-01",
+        "name": "Pantalón Premium",
+        "weight": 1,
+        "stock": 5,
+        "color": "#E63946",
+        "icon": "prize-jeans",
+        "active": true
+      },
+      {
+        "id": "prize-02",
+        "name": "10% Descuento",
+        "weight": 4,
+        "stock": null,
+        "color": "#457B9D",
+        "icon": "prize-discount",
+        "active": true
+      }
+    ],
+    "segments": [
+      {
+        "index": 0,
+        "prizeId": "prize-01",
+        "label": "Pantalón Premium",
+        "color": "#E63946",
+        "icon": "prize-jeans"
+      },
+      {
+        "index": 1,
+        "prizeId": "prize-02",
+        "label": "10% Descuento",
+        "color": "#457B9D",
+        "icon": "prize-discount"
+      }
+    ],
+    "queue": [
+      {
+        "id": "entry-8f2c",
+        "buyerName": "Carlos",
+        "spinsTotal": 3,
+        "spinsRemaining": 2,
+        "note": "2 pantalones, promo 2x1",
+        "createdAt": 1730000001000
+      }
+    ],
+    "activeSpin": null
+  }
+}

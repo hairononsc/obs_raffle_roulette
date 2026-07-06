@@ -1,0 +1,14 @@
+{
+  "v": 1,
+  "type": "settings.changed",
+  "ts": 1730000007100,
+  "payload": {
+    "settings": {
+      "durationMs": 8000,
+      "extraRotations": {
+        "min": 4,
+        "max": 7
+      }
+    }
+  }
+}

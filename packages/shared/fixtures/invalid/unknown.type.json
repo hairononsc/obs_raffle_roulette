@@ -1,0 +1,8 @@
+{
+  "v": 1,
+  "type": "wheel.hack.prize",
+  "ts": 1730000003000,
+  "payload": {
+    "prizeId": "prize-01"
+  }
+}

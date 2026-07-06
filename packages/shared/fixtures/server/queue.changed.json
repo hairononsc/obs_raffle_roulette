@@ -1,0 +1,23 @@
+{
+  "v": 1,
+  "type": "queue.changed",
+  "ts": 1730000001200,
+  "payload": {
+    "queue": [
+      {
+        "id": "entry-8f2c",
+        "buyerName": "Carlos",
+        "spinsTotal": 3,
+        "spinsRemaining": 2,
+        "createdAt": 1730000001000
+      },
+      {
+        "id": "entry-9a3d",
+        "buyerName": "María",
+        "spinsTotal": 1,
+        "spinsRemaining": 1,
+        "createdAt": 1730000002000
+      }
+    ]
+  }
+}

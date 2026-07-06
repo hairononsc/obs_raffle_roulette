@@ -1,0 +1,13 @@
+{
+  "v": 1,
+  "type": "prize.update",
+  "ts": 1730000005000,
+  "requestId": "req-005",
+  "payload": {
+    "prizeId": "prize-01",
+    "patch": {
+      "weight": 2.5,
+      "stock": 3
+    }
+  }
+}

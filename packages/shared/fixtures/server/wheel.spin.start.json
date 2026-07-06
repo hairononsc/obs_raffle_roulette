@@ -1,0 +1,20 @@
+{
+  "v": 1,
+  "type": "wheel.spin.start",
+  "ts": 1730000003200,
+  "payload": {
+    "spin": {
+      "spinId": "spin-4b1d",
+      "entryId": "entry-8f2c",
+      "buyerName": "Carlos",
+      "prizeId": "prize-01",
+      "targetSegmentIndex": 0,
+      "animation": {
+        "durationMs": 8000,
+        "extraRotations": 5
+      },
+      "status": "spinning",
+      "startedAt": 1730000003200
+    }
+  }
+}

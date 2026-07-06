@@ -1,0 +1,7 @@
+{
+  "v": 1,
+  "type": "ack",
+  "ts": 1730000001100,
+  "requestId": "req-001",
+  "payload": {}
+}

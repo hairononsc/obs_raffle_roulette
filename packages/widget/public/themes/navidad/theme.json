@@ -1,0 +1,24 @@
+{
+  "glowColor": "#e63946",
+  "wheel": {
+    "rimColor": "#1a3a2a",
+    "lightOnColor": "#ffd166",
+    "lightOffColor": "#4a5d52",
+    "hubColor": "#0d2418",
+    "hubAccentColor": "#e63946",
+    "labelColor": "#ffffff"
+  },
+  "pointer": {
+    "color": "#e63946",
+    "strokeColor": "#7a1f28"
+  },
+  "banner": {
+    "nameColor": "#ffffff",
+    "accentColor": "#ffd166"
+  },
+  "confettiColors": ["#e63946", "#2a9d8f", "#ffd166", "#ffffff"],
+  "icons": {
+    "prize-jeans": "🎄",
+    "prize-cap": "🎅"
+  }
+}

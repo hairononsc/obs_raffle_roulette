@@ -1,0 +1,43 @@
+{
+  "v": 1,
+  "type": "prizes.changed",
+  "ts": 1730000015100,
+  "payload": {
+    "prizes": [
+      {
+        "id": "prize-01",
+        "name": "Pantalón Premium",
+        "weight": 1,
+        "stock": 4,
+        "color": "#E63946",
+        "icon": "prize-jeans",
+        "active": true
+      },
+      {
+        "id": "prize-02",
+        "name": "10% Descuento",
+        "weight": 4,
+        "stock": null,
+        "color": "#457B9D",
+        "icon": "prize-discount",
+        "active": true
+      }
+    ],
+    "segments": [
+      {
+        "index": 0,
+        "prizeId": "prize-01",
+        "label": "Pantalón Premium",
+        "color": "#E63946",
+        "icon": "prize-jeans"
+      },
+      {
+        "index": 1,
+        "prizeId": "prize-02",
+        "label": "10% Descuento",
+        "color": "#457B9D",
+        "icon": "prize-discount"
+      }
+    ]
+  }
+}

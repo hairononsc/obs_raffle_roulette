@@ -1,0 +1,16 @@
+{
+  "v": 1,
+  "type": "prize.create",
+  "ts": 1730000004000,
+  "requestId": "req-004",
+  "payload": {
+    "prize": {
+      "name": "Pantalón Premium",
+      "weight": 1,
+      "stock": 5,
+      "color": "#E63946",
+      "icon": "prize-jeans",
+      "active": true
+    }
+  }
+}

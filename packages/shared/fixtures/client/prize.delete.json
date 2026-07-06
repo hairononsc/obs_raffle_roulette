@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "type": "prize.delete",
+  "ts": 1730000006000,
+  "requestId": "req-006",
+  "payload": {
+    "prizeId": "prize-02"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "v": 1,
+  "type": "spin.completed",
+  "ts": 1730000015000,
+  "payload": {
+    "spinId": "spin-4b1d",
+    "buyerName": "Carlos",
+    "prizeId": "prize-01",
+    "prizeName": "Pantalón Premium",
+    "completedAt": 1730000015000
+  }
+}

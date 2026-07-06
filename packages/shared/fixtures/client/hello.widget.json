@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "type": "hello",
+  "ts": 1730000000000,
+  "payload": {
+    "role": "widget",
+    "clientInfo": "widget/0.1.0"
+  }
+}

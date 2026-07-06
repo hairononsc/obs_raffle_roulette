@@ -1,0 +1,11 @@
+{
+  "v": 1,
+  "type": "queue.add",
+  "ts": 1730000001000,
+  "requestId": "req-001",
+  "payload": {
+    "buyerName": "Carlos",
+    "spins": 3,
+    "note": "2 pantalones, promo 2x1"
+  }
+}

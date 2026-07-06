@@ -1,0 +1,10 @@
+{
+  "v": 1,
+  "type": "error",
+  "ts": 1730000003100,
+  "requestId": "req-003",
+  "payload": {
+    "code": "SPIN_IN_PROGRESS",
+    "message": "A spin is already active; wait for it to complete"
+  }
+}
