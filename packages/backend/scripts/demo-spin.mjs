@@ -3,7 +3,7 @@
 //
 //   node scripts/demo-spin.mjs [buyerName]
 //
-// Requires the backend running (pnpm dev) with the default dev token.
+// Requires the backend running (pnpm dev).
 import WebSocket from 'ws';
 
 const buyerName = process.argv[2] ?? 'Carlos';
@@ -13,7 +13,7 @@ const send = (type, payload, requestId) => {
 };
 
 ws.on('open', () => {
-  send('hello', { role: 'panel', token: process.env.WHEELLIVE_PANEL_TOKEN ?? 'dev-token' });
+  send('hello', { role: 'panel' });
 });
 
 ws.on('message', (data) => {

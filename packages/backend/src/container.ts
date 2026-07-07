@@ -88,12 +88,7 @@ export async function createApp(config: AppConfig): Promise<WheelLiveApp> {
     httpServer: fastify.server,
     path: '/ws',
     onConnection: (socket) => {
-      new ClientSession(socket, {
-        registry,
-        dispatcher,
-        snapshot,
-        panelToken: config.panelToken,
-      }).start();
+      new ClientSession(socket, { registry, dispatcher, snapshot }).start();
     },
   });
 

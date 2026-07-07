@@ -22,12 +22,11 @@ export interface ClientSessionDeps {
   registry: ConnectionRegistry;
   dispatcher: CommandDispatcher;
   snapshot: SnapshotService;
-  panelToken: string;
 }
 
 /**
- * Per-connection state machine: awaiting `hello` -> authenticated. Every
- * authenticated command is answered with exactly one `ack` or `error`.
+ * Per-connection state machine: awaiting `hello` -> registered. Every
+ * registered command is answered with exactly one `ack` or `error`.
  */
 export class ClientSession {
   private role: ClientRole | null = null;
@@ -76,13 +75,7 @@ export class ClientSession {
       return;
     }
 
-    const { role, token } = message.payload;
-    if (role === 'panel' && token !== this.deps.panelToken) {
-      this.sendError(message.requestId, 'UNAUTHORIZED', 'invalid panel token');
-      this.socket.close(4003, 'unauthorized');
-      return;
-    }
-
+    const { role } = message.payload;
     this.role = role;
     this.clearHelloTimer();
     this.deps.registry.add(this.socket, role);

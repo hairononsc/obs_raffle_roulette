@@ -46,7 +46,6 @@ function createPair(): { socket: FakeSocket; client: PanelSocket } {
   const socket = new FakeSocket();
   const client = new PanelSocket({
     url: 'ws://test/ws',
-    getToken: () => 'secret',
     socketFactory: () => socket,
   });
   client.connect();
@@ -54,13 +53,12 @@ function createPair(): { socket: FakeSocket; client: PanelSocket } {
 }
 
 describe('PanelSocket', () => {
-  it('sends hello with the panel token on open', () => {
+  it('sends hello as panel on open', () => {
     const { socket } = createPair();
     socket.open();
     const hello = socket.lastSent();
     expect(hello.type).toBe('hello');
     expect(hello.payload.role).toBe('panel');
-    expect(hello.payload.token).toBe('secret');
   });
 
   it('resolves a request when its ack arrives', async () => {

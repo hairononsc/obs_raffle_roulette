@@ -9,7 +9,7 @@ import {
 
 import { Emitter } from '../core/emitter.js';
 
-export type ConnectionStatus = 'connecting' | 'online' | 'offline' | 'unauthorized';
+export type ConnectionStatus = 'connecting' | 'online' | 'offline';
 
 const REQUEST_TIMEOUT_MS = 5000;
 const BACKOFF_BASE_MS = 500;
@@ -51,7 +51,6 @@ interface PendingRequest {
 
 export interface PanelSocketOptions {
   url: string;
-  getToken: () => string;
   socketFactory?: (url: string) => SocketLike;
 }
 
@@ -66,7 +65,6 @@ export class PanelSocket {
   private status: ConnectionStatus = 'offline';
   private attempts = 0;
   private counter = 0;
-  private unauthorized = false;
   private readonly pending = new Map<string, PendingRequest>();
   private readonly factory: (url: string) => SocketLike;
 
@@ -79,7 +77,6 @@ export class PanelSocket {
   }
 
   connect(): void {
-    this.unauthorized = false;
     this.setStatus('connecting');
     const socket = this.factory(this.options.url);
     this.socket = socket;
@@ -90,7 +87,6 @@ export class PanelSocket {
         JSON.stringify(
           createMessage<HelloMessage>('hello', {
             role: 'panel',
-            token: this.options.getToken(),
             clientInfo: 'panel/0.1.0',
           }),
         ),
@@ -112,10 +108,6 @@ export class PanelSocket {
     socket.onclose = () => {
       this.socket = null;
       this.failAllPending('conexión perdida');
-      if (this.unauthorized) {
-        this.setStatus('unauthorized');
-        return;
-      }
       this.setStatus('offline');
       this.scheduleReconnect();
     };
@@ -123,13 +115,6 @@ export class PanelSocket {
     socket.onerror = () => {
       socket.close();
     };
-  }
-
-  /** Re-attempt after the operator fixes the token. */
-  retry(): void {
-    this.socket?.close();
-    this.socket = null;
-    this.connect();
   }
 
   async request<M extends ClientMessage>(type: M['type'], payload: M['payload']): Promise<void> {
@@ -153,9 +138,6 @@ export class PanelSocket {
   private handleMessage(message: ServerMessage): void {
     if (message.type === 'state.sync') {
       this.setStatus('online');
-    }
-    if (message.type === 'error' && message.payload.code === 'UNAUTHORIZED') {
-      this.unauthorized = true;
     }
 
     if ((message.type === 'ack' || message.type === 'error') && message.requestId !== undefined) {

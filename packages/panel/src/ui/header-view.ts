@@ -5,7 +5,6 @@ const STATUS_LABELS: Record<PanelState['status'], string> = {
   connecting: 'Conectando…',
   online: 'En línea',
   offline: 'Sin conexión',
-  unauthorized: 'Token inválido',
 };
 
 /** Top bar: brand, live connection status and the active-spin badge. */

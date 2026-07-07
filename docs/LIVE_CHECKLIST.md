@@ -19,11 +19,6 @@ Al arrancar se crea automáticamente un backup de la base de datos en
 
 ## Checklist
 
-**Seguridad**
-
-- [ ] Token real configurado: `WHEELLIVE_PANEL_TOKEN=<secreto> pnpm live`.
-      Si ves el warning "using the default panel token" en la consola, NO salgas en vivo así.
-
 **OBS** (detalle completo en `OBS_SETUP.md`)
 
 - [ ] Browser Source apuntando a `http://localhost:8710/widget/`

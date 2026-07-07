@@ -98,7 +98,6 @@ const ERROR_MESSAGES: Record<string, string> = {
   ENTRY_NOT_FOUND: 'El comprador ya no está en la cola',
   PRIZE_NOT_FOUND: 'El premio ya no existe',
   INVALID_STATE: 'No permitido mientras hay un giro activo',
-  UNAUTHORIZED: 'Token incorrecto',
   OFFLINE: 'Sin conexión con el servidor',
   TIMEOUT: 'El servidor no respondió',
 };

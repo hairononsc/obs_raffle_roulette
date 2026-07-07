@@ -8,8 +8,6 @@ import { z } from 'zod';
 export const ERROR_CODES = [
   /** Frame was not valid JSON or did not match the protocol schema. */
   'INVALID_MESSAGE',
-  /** Missing or wrong token in `hello` for role "panel". */
-  'UNAUTHORIZED',
   /** The sender's role is not allowed to send this message type. */
   'FORBIDDEN',
   /** Referenced queue entry does not exist. */

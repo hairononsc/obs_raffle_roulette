@@ -6,7 +6,6 @@ import { z } from 'zod';
 const EnvSchema = z.object({
   WHEELLIVE_HOST: z.string().min(1).default('127.0.0.1'),
   WHEELLIVE_PORT: z.coerce.number().int().min(0).max(65535).default(8710),
-  WHEELLIVE_PANEL_TOKEN: z.string().min(1).default('dev-token'),
   WHEELLIVE_DB_PATH: z.string().min(1).default('data/wheellive.sqlite'),
   WHEELLIVE_LANDING_GRACE_MS: z.coerce.number().int().min(0).default(5000),
   WHEELLIVE_CELEBRATION_MS: z.coerce.number().int().min(0).default(6000),
@@ -35,20 +34,16 @@ export interface StaticConfig {
 export interface AppConfig {
   host: string;
   port: number;
-  panelToken: string;
   dbPath: string;
   timing: SpinTiming;
   static: StaticConfig;
 }
-
-export const DEFAULT_PANEL_TOKEN = 'dev-token';
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const parsed = EnvSchema.parse(env);
   return {
     host: parsed.WHEELLIVE_HOST,
     port: parsed.WHEELLIVE_PORT,
-    panelToken: parsed.WHEELLIVE_PANEL_TOKEN,
     dbPath: parsed.WHEELLIVE_DB_PATH,
     timing: {
       landingGraceMs: parsed.WHEELLIVE_LANDING_GRACE_MS,

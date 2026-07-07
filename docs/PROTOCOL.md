@@ -32,9 +32,8 @@ Cada frame WebSocket es un único objeto JSON:
 ## Conexión y roles
 
 1. El cliente abre el WebSocket y envía `hello` como primer mensaje.
-2. Rol `panel` requiere `token` (configurado en el backend). Rol `widget` no.
-3. Respuesta exitosa: `state.sync`. Fallo: `error` (`UNAUTHORIZED` / `INVALID_MESSAGE`) y cierre.
-4. Cualquier mensaje previo al `hello`, o un tipo no permitido para el rol, produce `error` (`FORBIDDEN`).
+2. Respuesta exitosa: `state.sync`. Fallo: `error` (`INVALID_MESSAGE`) y cierre.
+3. Cualquier mensaje previo al `hello`, o un tipo no permitido para el rol, produce `error` (`FORBIDDEN`).
 
 Permisos por rol:
 
@@ -45,7 +44,7 @@ Permisos por rol:
 
 | `type`              | Emisor | Payload                                | Efecto                                                      |
 | ------------------- | ------ | -------------------------------------- | ----------------------------------------------------------- |
-| `hello`             | ambos  | `role`, `token?`, `clientInfo?`        | Autentica y suscribe. Respuesta: `state.sync`.              |
+| `hello`             | ambos  | `role`, `clientInfo?`                  | Registra el rol y suscribe. Respuesta: `state.sync`.        |
 | `queue.add`         | panel  | `buyerName`, `spins` (1–50), `note?`   | Crea entrada en cola. Broadcast: `queue.changed`.           |
 | `queue.remove`      | panel  | `entryId`                              | Elimina entrada. Broadcast: `queue.changed`.                |
 | `spin.launch`       | panel  | `entryId`                              | Lanza **un** giro de esa entrada. Ver ciclo de vida abajo.  |
@@ -106,7 +105,7 @@ Garantías:
 
 ## Errores
 
-`INVALID_MESSAGE` · `UNAUTHORIZED` · `FORBIDDEN` · `ENTRY_NOT_FOUND` ·
+`INVALID_MESSAGE` · `FORBIDDEN` · `ENTRY_NOT_FOUND` ·
 `PRIZE_NOT_FOUND` · `SPIN_IN_PROGRESS` · `SPIN_NOT_ACTIVE` · `NO_STOCK_AVAILABLE` ·
 `NO_SPINS_REMAINING` · `INVALID_STATE` · `INTERNAL_ERROR`
 

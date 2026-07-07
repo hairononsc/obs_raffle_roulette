@@ -11,25 +11,14 @@ export type ClientRole = z.infer<typeof ClientRoleSchema>;
 
 /**
  * First message on every connection. The server replies with `state.sync`
- * on success or `error` + close on failure. Panels must authenticate.
+ * on success or `error` + close on failure.
  */
 export const HelloMessageSchema = defineMessage(
   'hello',
-  z
-    .object({
-      role: ClientRoleSchema,
-      token: z.string().min(1).optional(),
-      clientInfo: z.string().max(100).optional(),
-    })
-    .superRefine((payload, ctx) => {
-      if (payload.role === 'panel' && payload.token === undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['token'],
-          message: 'token is required for role "panel"',
-        });
-      }
-    }),
+  z.object({
+    role: ClientRoleSchema,
+    clientInfo: z.string().max(100).optional(),
+  }),
 );
 
 /** Panel registers a purchase: a buyer and how many spins it grants. */

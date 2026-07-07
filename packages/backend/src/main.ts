@@ -1,4 +1,4 @@
-import { DEFAULT_PANEL_TOKEN, loadConfig } from './config.js';
+import { loadConfig } from './config.js';
 import { createApp } from './container.js';
 
 const config = loadConfig();
@@ -7,11 +7,6 @@ const address = await app.start();
 
 console.log(`[wheellive] backend listening at ${address}`);
 console.log(`[wheellive] websocket endpoint: ${address.replace(/^http/, 'ws')}/ws`);
-if (config.panelToken === DEFAULT_PANEL_TOKEN) {
-  console.warn(
-    '[wheellive] WARNING: using the default panel token; set WHEELLIVE_PANEL_TOKEN for real streams',
-  );
-}
 
 const shutdown = (signal: string): void => {
   console.log(`[wheellive] ${signal} received, shutting down`);

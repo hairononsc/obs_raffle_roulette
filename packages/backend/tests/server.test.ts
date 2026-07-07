@@ -13,7 +13,6 @@ import { createApp, type WheelLiveApp } from '../src/container.js';
 const TEST_CONFIG: AppConfig = {
   host: '127.0.0.1',
   port: 0,
-  panelToken: 'test-token',
   dbPath: ':memory:',
   timing: { landingGraceMs: 30_000, celebrationMs: 50 },
   static: { widgetDist: null, panelDist: null },
@@ -97,16 +96,16 @@ describe('WebSocket server (end to end)', () => {
     await app.stop();
   });
 
-  it('rejects a panel with a wrong token', async () => {
+  it('rejects a command sent before hello', async () => {
     const client = await connect(wsUrl);
-    client.send(createMessage('hello', { role: 'panel', token: 'wrong' }));
+    client.send(createMessage('queue.add', { buyerName: 'Eva', spins: 1 }, 'req-early'));
     const error = await client.waitFor('error');
-    expect(error.payload.code).toBe('UNAUTHORIZED');
+    expect(error.payload.code).toBe('FORBIDDEN');
   });
 
   it('runs the full show flow: hello -> queue.add -> spin -> landed -> completed', async () => {
     const panel = await connect(wsUrl);
-    panel.send(createMessage('hello', { role: 'panel', token: 'test-token' }));
+    panel.send(createMessage('hello', { role: 'panel' }));
     const panelSync = await panel.waitFor('state.sync');
     expect(panelSync.payload.prizes.length).toBeGreaterThan(0);
     expect(panelSync.payload.activeSpin).toBeNull();
@@ -145,7 +144,7 @@ describe('WebSocket server (end to end)', () => {
 
   it('a widget reconnecting mid-spin receives the active spin in state.sync', async () => {
     const panel = await connect(wsUrl);
-    panel.send(createMessage('hello', { role: 'panel', token: 'test-token' }));
+    panel.send(createMessage('hello', { role: 'panel' }));
     await panel.waitFor('state.sync');
 
     panel.send(createMessage('queue.add', { buyerName: 'María', spins: 1 }, 'req-add2'));

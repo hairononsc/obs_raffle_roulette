@@ -78,8 +78,7 @@ body {
   color: #06281f;
 }
 
-.status-offline,
-.status-unauthorized {
+.status-offline {
   background: var(--danger);
   color: #fff;
 }

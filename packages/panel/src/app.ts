@@ -8,12 +8,10 @@ import { HistoryView } from './ui/history-view.js';
 import { PrizesView } from './ui/prizes-view.js';
 import { QueueView } from './ui/queue-view.js';
 import { SettingsView } from './ui/settings-view.js';
-import { TokenDialog, loadToken } from './ui/token-dialog.js';
 
 /** Composition root of the panel: wires socket -> store -> views. */
 export function startPanel(container: HTMLElement): void {
-  let token = loadToken();
-  const socket = new PanelSocket({ url: resolveWsUrl(), getToken: () => token });
+  const socket = new PanelSocket({ url: resolveWsUrl() });
   const store = new PanelStore();
   const toast = new ToastCenter();
   const actions = new PanelActions(socket, toast);
@@ -23,10 +21,6 @@ export function startPanel(container: HTMLElement): void {
   const prizes = new PrizesView(actions);
   const settings = new SettingsView(actions);
   const history = new HistoryView();
-  const tokenDialog = new TokenDialog((newToken) => {
-    token = newToken;
-    socket.retry();
-  });
 
   container.append(
     header.root,
@@ -34,7 +28,6 @@ export function startPanel(container: HTMLElement): void {
       el('div', { className: 'column' }, [queue.root, settings.root]),
       el('div', { className: 'column' }, [prizes.root, history.root]),
     ]),
-    tokenDialog.root,
   );
   toast.mount(container);
 
@@ -54,9 +47,6 @@ export function startPanel(container: HTMLElement): void {
   });
   socket.events.on('status', (status) => {
     store.setStatus(status);
-    if (status === 'unauthorized') {
-      tokenDialog.open();
-    }
     if (status === 'online') {
       void history.refresh();
     }
