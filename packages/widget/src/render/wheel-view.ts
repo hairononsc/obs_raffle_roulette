@@ -2,7 +2,7 @@ import type { WheelSegment } from '@wheellive/shared';
 import { Container, Graphics, Text } from 'pixi.js';
 
 import { segmentArc, segmentCenterAngle } from '../wheel/geometry.js';
-import type { WidgetTheme } from '../theme/theme.js';
+import { resolveIcon, type WidgetTheme } from '../theme/theme.js';
 
 export const WHEEL_RADIUS = 320;
 const RIM_WIDTH = 34;
@@ -132,7 +132,7 @@ export class WheelView {
       this.rotor.addChild(label);
 
       const icon = new Text({
-        text: theme.icons[segment.icon] ?? theme.iconFallback,
+        text: resolveIcon(theme, segment.icon),
         style: { fontSize: fontSize * 1.2 },
       });
       icon.anchor.set(0.5);

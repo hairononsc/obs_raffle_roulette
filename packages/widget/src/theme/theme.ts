@@ -42,6 +42,19 @@ export const ThemeSchema = z.object({
 
 export type WidgetTheme = z.infer<typeof ThemeSchema>;
 
+/**
+ * Resolves a prize `icon` to a display glyph. Theme keys (`prize-*`) go
+ * through the theme's icon map with the theme fallback; anything else is
+ * treated as a literal glyph (e.g. an emoji typed straight into the panel).
+ */
+export function resolveIcon(theme: WidgetTheme, icon: string): string {
+  const mapped = theme.icons[icon];
+  if (mapped !== undefined) {
+    return mapped;
+  }
+  return icon.startsWith('prize-') ? theme.iconFallback : icon;
+}
+
 export const CASINO_THEME: WidgetTheme = {
   id: 'casino',
   glowColor: '#f5c542',
@@ -69,6 +82,15 @@ export const CASINO_THEME: WidgetTheme = {
     'prize-discount': '🏷️',
     'prize-shipping': '📦',
     'prize-cap': '🧢',
+    'prize-gift': '🎁',
+    'prize-respin': '🔄',
+    'prize-vip': '⭐',
+    'prize-coupon': '🎊',
+    'prize-accessory': '🌸',
+    'prize-live-price': '🔥',
+    'prize-extra-spin': '🎯',
+    'prize-priority': '✨',
+    'prize-surprise': '💎',
   },
   iconFallback: '🎁',
   sounds: {

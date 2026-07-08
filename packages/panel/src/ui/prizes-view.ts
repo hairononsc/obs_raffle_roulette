@@ -111,7 +111,7 @@ class PrizeDialog {
       field('Peso (probabilidad relativa)', this.weight),
       field('Inventario', this.stock),
       field('Color', this.color),
-      field('Icono (clave del tema)', this.icon),
+      field('Icono (emoji o clave del tema)', this.icon),
       el('label', { className: 'field-check' }, [this.active, 'Activo (visible en la ruleta)']),
       el('div', { className: 'dialog-actions' }, [
         button('Cancelar', 'btn btn-ghost', () => {

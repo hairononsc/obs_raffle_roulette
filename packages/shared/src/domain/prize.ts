@@ -10,7 +10,8 @@ const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
  *   as one with weight 1 among the eligible prizes.
  * - `stock` is the remaining physical inventory. `null` means unlimited.
  *   A prize with stock 0 is never selected by the server.
- * - `icon` is an asset key resolved by the active theme in the widget.
+ * - `icon` is either a theme key (`prize-*`, resolved by the active theme
+ *   in the widget) or a literal glyph such as an emoji, rendered as-is.
  */
 export const PrizeSchema = z.object({
   id: z.string().min(1),
