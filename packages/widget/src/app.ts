@@ -100,6 +100,11 @@ export class WidgetApp {
         this.finishCelebration();
         break;
       case 'prizes.changed':
+        // The public board updates immediately; only the wheel layout is
+        // deferred while a spin animates toward the current segments.
+        if (this.stage.has('prizes')) {
+          this.stage.prizeBoard.setPrizes(message.payload.prizes);
+        }
         this.applySegments(message.payload.segments);
         break;
       case 'theme.changed':
@@ -166,6 +171,9 @@ export class WidgetApp {
     // OBS source with an unlocked chest shows the prize immediately.
     if (this.stage.has('chest')) {
       this.stage.chest.setState(payload.chest);
+    }
+    if (this.stage.has('prizes')) {
+      this.stage.prizeBoard.setPrizes(payload.prizes);
     }
     if (this.stage.has('offer')) {
       if (payload.flashOffer && payload.flashOffer.endsAt > Date.now()) {

@@ -6,12 +6,13 @@ import { ChestView } from './chest-view.js';
 import { ConfettiSystem } from './confetti.js';
 import { FlashOfferView } from './offer-view.js';
 import { PointerView } from './pointer-view.js';
+import { PrizeBoardView } from './prize-board-view.js';
 import { WHEEL_RADIUS, WheelView } from './wheel-view.js';
 import type { WidgetTheme } from '../theme/theme.js';
 
 const DESIGN_EXTENT = WHEEL_RADIUS + 150;
 
-export type ShowModule = 'wheel' | 'chest' | 'offer';
+export type ShowModule = 'wheel' | 'chest' | 'offer' | 'prizes';
 
 /**
  * Composes all views and owns layout: the wheel group scales to fit the
@@ -29,6 +30,7 @@ export class WidgetStage {
   readonly confetti = new ConfettiSystem();
   readonly chest = new ChestView();
   readonly offer = new FlashOfferView();
+  readonly prizeBoard = new PrizeBoardView();
   private readonly glow = new Graphics();
   private readonly wheelGroup = new Container();
   private glowPhase = 0;
@@ -45,10 +47,12 @@ export class WidgetStage {
       this.banner.container,
       this.chest.container,
       this.offer.container,
+      this.prizeBoard.container,
     );
     this.wheelGroup.visible = show.has('wheel');
     this.banner.container.visible = show.has('wheel');
     this.chest.container.visible = show.has('chest');
+    this.prizeBoard.container.visible = show.has('prizes');
     // The offer view manages its own visibility (hidden until an offer
     // starts); the app never calls show() when the module is excluded.
   }
@@ -63,6 +67,7 @@ export class WidgetStage {
     this.banner.applyTheme(theme);
     this.chest.applyTheme(theme);
     this.offer.applyTheme(theme);
+    this.prizeBoard.applyTheme(theme);
     this.glow
       .clear()
       .circle(0, 0, WHEEL_RADIUS + 70)
@@ -74,6 +79,20 @@ export class WidgetStage {
     const wheelVisible = this.show.has('wheel');
     const chestVisible = this.show.has('chest');
     const offerVisible = this.show.has('offer');
+
+    if (this.show.has('prizes')) {
+      // Designed as a dedicated source; alongside other modules it docks
+      // to the left edge at a smaller scale.
+      const boardH = Math.max(this.prizeBoard.designHeight, 400);
+      if (!wheelVisible && !chestVisible && !offerVisible) {
+        this.prizeBoard.container.scale.set(Math.min(width / 1020, height / (boardH + 60)));
+        this.prizeBoard.container.position.set(width / 2, height / 2);
+      } else {
+        const scale = Math.min(width / 2600, height / (boardH + 200));
+        this.prizeBoard.container.scale.set(scale);
+        this.prizeBoard.container.position.set(width * 0.17, height / 2);
+      }
+    }
 
     if (wheelVisible) {
       const scale = unit / (DESIGN_EXTENT * 2.35);
@@ -122,6 +141,9 @@ export class WidgetStage {
     this.confetti.update(dtMs);
     this.chest.update(dtMs, timeMs);
     this.offer.update(dtMs, timeMs);
+    if (this.show.has('prizes')) {
+      this.prizeBoard.update(timeMs);
+    }
     this.glowPhase += dtMs;
     this.glow.alpha = 0.75 + 0.25 * Math.sin(this.glowPhase / 900);
   }

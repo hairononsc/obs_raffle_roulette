@@ -40,13 +40,17 @@ fuente:
 | `http://localhost:8710/widget/?show=wheel`     | Solo la ruleta                     |
 | `http://localhost:8710/widget/?show=chest`     | Solo el cofre (grande y centrado)  |
 | `http://localhost:8710/widget/?show=offer`     | Solo la oferta (grande y centrada) |
+| `http://localhost:8710/widget/?show=prizes`    | Tablero público de premios y reglas |
 | `?show=wheel,chest` / `?show=chest,offer` etc. | Cualquier combinación              |
 
 **Recomendado**: una fuente por módulo (`?show=wheel`, `?show=chest`,
 `?show=offer`) para moverlos y ocultarlos por separado en OBS con el ojito.
-Tamaños sugeridos: cofre **500 × 620**, oferta **900 × 560**. La oferta no
-dibuja nada hasta que la actives desde el panel — la fuente puede quedarse
-visible siempre.
+Tamaños sugeridos: cofre **500 × 620**, oferta **900 × 560**, tablero de
+premios **1000 × 900**. La oferta no dibuja nada hasta que la actives desde
+el panel — la fuente puede quedarse visible siempre. El tablero muestra a
+la audiencia cada premio con su probabilidad y sus reglas en lenguaje de
+cliente (compra mínima, máximos por live, "solo durante ofertas"), se
+actualiza solo al editar premios, y atenúa los agotados.
 
 ## Ajustes críticos (no opcionales)
 

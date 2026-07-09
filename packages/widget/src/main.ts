@@ -5,7 +5,7 @@ import { SynthAudio } from './audio/synth-audio.js';
 import { WsClient, resolveWsUrl } from './net/ws-client.js';
 import { WidgetStage, type ShowModule } from './render/stage.js';
 
-const ALL_MODULES: readonly ShowModule[] = ['wheel', 'chest', 'offer'];
+const ALL_MODULES: readonly ShowModule[] = ['wheel', 'chest', 'offer', 'prizes'];
 
 /** `?show=wheel,chest,offer` picks which modules this OBS source renders;
  *  omitted, empty or fully invalid values mean "all". */
