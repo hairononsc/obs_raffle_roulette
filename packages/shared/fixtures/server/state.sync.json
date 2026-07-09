@@ -57,6 +57,13 @@
         "createdAt": 1730000001000
       }
     ],
-    "activeSpin": null
+    "activeSpin": null,
+    "chest": {
+      "keys": 2,
+      "keysTarget": 5,
+      "prize": "👖 Jean Gratis",
+      "status": "locked"
+    },
+    "flashOffer": null
   }
 }

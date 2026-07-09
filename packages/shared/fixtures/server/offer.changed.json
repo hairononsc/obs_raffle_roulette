@@ -1,0 +1,15 @@
+{
+  "v": 1,
+  "type": "offer.changed",
+  "ts": 1730000002500,
+  "payload": {
+    "offer": {
+      "title": "2x1 en jeans premium",
+      "description": "Solo durante los próximos 10 minutos",
+      "durationMs": 600000,
+      "startedAt": 1730000002500,
+      "endsAt": 1730000602500
+    },
+    "cause": "started"
+  }
+}

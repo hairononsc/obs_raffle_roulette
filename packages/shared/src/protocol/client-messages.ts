@@ -83,6 +83,43 @@ export const ThemeSetMessageSchema = defineMessage(
   z.object({ themeId: z.string().min(1) }),
 );
 
+/** Panel grants one key toward unlocking the chest. */
+export const ChestKeyAddMessageSchema = defineMessage('chest.key.add', z.object({}));
+
+/** Panel removes one key (e.g. a mistaken grant). */
+export const ChestKeyRemoveMessageSchema = defineMessage('chest.key.remove', z.object({}));
+
+/** Panel opens the chest manually, regardless of key count. */
+export const ChestOpenMessageSchema = defineMessage('chest.open', z.object({}));
+
+/** Panel closes an unlocked chest; keys are preserved. */
+export const ChestCloseMessageSchema = defineMessage('chest.close', z.object({}));
+
+/** Panel resets the chest: zero keys, locked. */
+export const ChestResetMessageSchema = defineMessage('chest.reset', z.object({}));
+
+/** Panel configures the chest prize and how many keys unlock it. */
+export const ChestConfigureMessageSchema = defineMessage(
+  'chest.configure',
+  z.object({
+    prize: z.string().min(1).max(100),
+    keysTarget: z.number().int().min(1).max(50),
+  }),
+);
+
+/** Panel starts a flash offer; rejected while another offer is active. */
+export const OfferStartMessageSchema = defineMessage(
+  'offer.start',
+  z.object({
+    title: z.string().min(1).max(60),
+    description: z.string().max(160),
+    durationMs: z.number().int().min(60_000).max(3_600_000),
+  }),
+);
+
+/** Panel cancels the active flash offer before it expires. */
+export const OfferCancelMessageSchema = defineMessage('offer.cancel', z.object({}));
+
 export const ClientMessageSchema = z.discriminatedUnion('type', [
   HelloMessageSchema,
   QueueAddMessageSchema,
@@ -94,6 +131,14 @@ export const ClientMessageSchema = z.discriminatedUnion('type', [
   PrizeDeleteMessageSchema,
   SettingsUpdateMessageSchema,
   ThemeSetMessageSchema,
+  ChestKeyAddMessageSchema,
+  ChestKeyRemoveMessageSchema,
+  ChestOpenMessageSchema,
+  ChestCloseMessageSchema,
+  ChestResetMessageSchema,
+  ChestConfigureMessageSchema,
+  OfferStartMessageSchema,
+  OfferCancelMessageSchema,
 ]);
 
 export type HelloMessage = z.infer<typeof HelloMessageSchema>;
@@ -106,6 +151,14 @@ export type PrizeUpdateMessage = z.infer<typeof PrizeUpdateMessageSchema>;
 export type PrizeDeleteMessage = z.infer<typeof PrizeDeleteMessageSchema>;
 export type SettingsUpdateMessage = z.infer<typeof SettingsUpdateMessageSchema>;
 export type ThemeSetMessage = z.infer<typeof ThemeSetMessageSchema>;
+export type ChestKeyAddMessage = z.infer<typeof ChestKeyAddMessageSchema>;
+export type ChestKeyRemoveMessage = z.infer<typeof ChestKeyRemoveMessageSchema>;
+export type ChestOpenMessage = z.infer<typeof ChestOpenMessageSchema>;
+export type ChestCloseMessage = z.infer<typeof ChestCloseMessageSchema>;
+export type ChestResetMessage = z.infer<typeof ChestResetMessageSchema>;
+export type ChestConfigureMessage = z.infer<typeof ChestConfigureMessageSchema>;
+export type OfferStartMessage = z.infer<typeof OfferStartMessageSchema>;
+export type OfferCancelMessage = z.infer<typeof OfferCancelMessageSchema>;
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;
 

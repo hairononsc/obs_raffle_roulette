@@ -1,0 +1,7 @@
+{
+  "v": 1,
+  "type": "chest.close",
+  "ts": 1730000003000,
+  "requestId": "req-chest.close",
+  "payload": {}
+}

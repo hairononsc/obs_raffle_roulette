@@ -1,0 +1,7 @@
+{
+  "v": 1,
+  "type": "offer.cancel",
+  "ts": 1730000003000,
+  "requestId": "req-offer-cancel",
+  "payload": {}
+}

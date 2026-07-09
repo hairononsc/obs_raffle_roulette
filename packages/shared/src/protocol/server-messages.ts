@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { ChestStateSchema } from '../domain/chest.js';
+import { FlashOfferSchema } from '../domain/flash-offer.js';
 import { PrizeSchema } from '../domain/prize.js';
 import { QueueEntrySchema } from '../domain/queue.js';
 import { SpinSettingsSchema } from '../domain/settings.js';
@@ -23,6 +25,8 @@ export const StateSyncMessageSchema = defineMessage(
     segments: z.array(WheelSegmentSchema),
     queue: z.array(QueueEntrySchema),
     activeSpin: ActiveSpinSchema.nullable(),
+    chest: ChestStateSchema,
+    flashOffer: FlashOfferSchema.nullable(),
   }),
 );
 
@@ -94,6 +98,31 @@ export const ThemeChangedMessageSchema = defineMessage(
   z.object({ themeId: z.string().min(1) }),
 );
 
+/**
+ * Broadcast on every chest mutation with the full new state. `cause` tells
+ * the widget which animation to play (state alone can't distinguish a key
+ * that unlocked the chest from a manual open, or a reset from a sync).
+ */
+export const ChestChangedMessageSchema = defineMessage(
+  'chest.changed',
+  z.object({
+    chest: ChestStateSchema,
+    cause: z.enum(['keyAdded', 'keyRemoved', 'opened', 'closed', 'reset', 'configured']),
+  }),
+);
+
+/**
+ * Broadcast when a flash offer starts (full offer) or ends (`offer: null`,
+ * whether cancelled by the operator or expired by the server timer).
+ */
+export const OfferChangedMessageSchema = defineMessage(
+  'offer.changed',
+  z.object({
+    offer: FlashOfferSchema.nullable(),
+    cause: z.enum(['started', 'cancelled', 'expired']),
+  }),
+);
+
 export const ServerMessageSchema = z.discriminatedUnion('type', [
   StateSyncMessageSchema,
   AckMessageSchema,
@@ -104,6 +133,8 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
   PrizesChangedMessageSchema,
   SettingsChangedMessageSchema,
   ThemeChangedMessageSchema,
+  ChestChangedMessageSchema,
+  OfferChangedMessageSchema,
 ]);
 
 export type StateSyncMessage = z.infer<typeof StateSyncMessageSchema>;
@@ -115,6 +146,8 @@ export type SpinCompletedMessage = z.infer<typeof SpinCompletedMessageSchema>;
 export type PrizesChangedMessage = z.infer<typeof PrizesChangedMessageSchema>;
 export type SettingsChangedMessage = z.infer<typeof SettingsChangedMessageSchema>;
 export type ThemeChangedMessage = z.infer<typeof ThemeChangedMessageSchema>;
+export type ChestChangedMessage = z.infer<typeof ChestChangedMessageSchema>;
+export type OfferChangedMessage = z.infer<typeof OfferChangedMessageSchema>;
 
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;
 

@@ -1,0 +1,14 @@
+{
+  "v": 1,
+  "type": "chest.changed",
+  "ts": 1730000002000,
+  "payload": {
+    "chest": {
+      "keys": 2,
+      "keysTarget": 5,
+      "prize": "👖 Jean Gratis",
+      "status": "locked"
+    },
+    "cause": "keyAdded"
+  }
+}

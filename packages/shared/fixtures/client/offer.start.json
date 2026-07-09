@@ -1,0 +1,11 @@
+{
+  "v": 1,
+  "type": "offer.start",
+  "ts": 1730000003000,
+  "requestId": "req-offer-start",
+  "payload": {
+    "title": "2x1 en jeans premium",
+    "description": "Solo durante los próximos 10 minutos",
+    "durationMs": 600000
+  }
+}

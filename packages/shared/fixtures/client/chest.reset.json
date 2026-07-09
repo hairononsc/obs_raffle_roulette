@@ -1,0 +1,7 @@
+{
+  "v": 1,
+  "type": "chest.reset",
+  "ts": 1730000003000,
+  "requestId": "req-chest.reset",
+  "payload": {}
+}
