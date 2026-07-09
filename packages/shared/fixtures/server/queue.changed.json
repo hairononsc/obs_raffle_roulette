@@ -9,14 +9,22 @@
         "buyerName": "Carlos",
         "spinsTotal": 3,
         "spinsRemaining": 2,
-        "createdAt": 1730000001000
+        "createdAt": 1730000001000,
+        "customerId": "customer-01",
+        "eligiblePrizeIds": [
+          "prize-01"
+        ]
       },
       {
         "id": "entry-9a3d",
         "buyerName": "María",
         "spinsTotal": 1,
         "spinsRemaining": 1,
-        "createdAt": 1730000002000
+        "createdAt": 1730000002000,
+        "customerId": "customer-01",
+        "eligiblePrizeIds": [
+          "prize-01"
+        ]
       }
     ]
   }

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ChestStateSchema } from '../domain/chest.js';
 import { FlashOfferSchema } from '../domain/flash-offer.js';
 import { OfferProgramStateSchema, OfferTemplateSchema } from '../domain/offer-program.js';
+import { WheelProfileSchema } from '../domain/wheel-profile.js';
 import { PrizeSchema } from '../domain/prize.js';
 import { QueueEntrySchema } from '../domain/queue.js';
 import { SpinSettingsSchema } from '../domain/settings.js';
@@ -30,6 +31,7 @@ export const StateSyncMessageSchema = defineMessage(
     flashOffer: FlashOfferSchema.nullable(),
     offerPool: z.array(OfferTemplateSchema),
     offerProgram: OfferProgramStateSchema.nullable(),
+    profiles: z.array(WheelProfileSchema),
   }),
 );
 
@@ -145,6 +147,12 @@ export const OfferProgramChangedMessageSchema = defineMessage(
   }),
 );
 
+/** Broadcast whenever the wheel profile list changes. */
+export const ProfilesChangedMessageSchema = defineMessage(
+  'profiles.changed',
+  z.object({ profiles: z.array(WheelProfileSchema) }),
+);
+
 export const ServerMessageSchema = z.discriminatedUnion('type', [
   StateSyncMessageSchema,
   AckMessageSchema,
@@ -159,6 +167,7 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
   OfferChangedMessageSchema,
   OfferPoolChangedMessageSchema,
   OfferProgramChangedMessageSchema,
+  ProfilesChangedMessageSchema,
 ]);
 
 export type StateSyncMessage = z.infer<typeof StateSyncMessageSchema>;
@@ -174,6 +183,7 @@ export type ChestChangedMessage = z.infer<typeof ChestChangedMessageSchema>;
 export type OfferChangedMessage = z.infer<typeof OfferChangedMessageSchema>;
 export type OfferPoolChangedMessage = z.infer<typeof OfferPoolChangedMessageSchema>;
 export type OfferProgramChangedMessage = z.infer<typeof OfferProgramChangedMessageSchema>;
+export type ProfilesChangedMessage = z.infer<typeof ProfilesChangedMessageSchema>;
 
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;
 

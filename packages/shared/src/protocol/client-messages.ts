@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { OfferTemplateInputSchema } from '../domain/offer-program.js';
 import { PrizeInputSchema } from '../domain/prize.js';
 import { SpinSettingsSchema } from '../domain/settings.js';
+import { WheelProfileSchema } from '../domain/wheel-profile.js';
 import { defineMessage } from './envelope.js';
 
 /** Who is connecting. Determines which message types the server accepts. */
@@ -22,13 +23,27 @@ export const HelloMessageSchema = defineMessage(
   }),
 );
 
-/** Panel registers a purchase: a buyer and how many spins it grants. */
+/**
+ * Panel registers a purchase: buyer, spins, and optional purchase context
+ * for the eligibility engine (all optional — a bare add still works).
+ * The server evaluates conditions and persists the eligibility snapshot.
+ */
 export const QueueAddMessageSchema = defineMessage(
   'queue.add',
   z.object({
     buyerName: z.string().min(1).max(50),
     spins: z.number().int().min(1).max(50),
     note: z.string().max(200).optional(),
+    phone: z.string().min(1).max(20).optional(),
+    purchaseAmount: z.number().nonnegative().optional(),
+    itemsCount: z.number().int().min(1).optional(),
+    profileId: z.string().min(1).optional(),
+    /** Manual overrides: force-enable (skips profile/conditions, never
+     *  skips active+stock) / force-disable (always wins). */
+    enabledPrizeIds: z.array(z.string().min(1)).optional(),
+    disabledPrizeIds: z.array(z.string().min(1)).optional(),
+    /** Prize ids the operator authorizes for requiresApproval conditions. */
+    approvals: z.array(z.string().min(1)).optional(),
   }),
 );
 
@@ -149,6 +164,18 @@ export const OfferProgramStartMessageSchema = defineMessage(
 /** Panel stops the active program (no-op if none). */
 export const OfferProgramStopMessageSchema = defineMessage('offer.program.stop', z.object({}));
 
+/** Panel creates (no id) or replaces (with id) a wheel profile. */
+export const ProfileSaveMessageSchema = defineMessage(
+  'profile.save',
+  z.object({ profile: WheelProfileSchema.extend({ id: z.string().min(1).optional() }) }),
+);
+
+/** Panel deletes a wheel profile. */
+export const ProfileDeleteMessageSchema = defineMessage(
+  'profile.delete',
+  z.object({ profileId: z.string().min(1) }),
+);
+
 export const ClientMessageSchema = z.discriminatedUnion('type', [
   HelloMessageSchema,
   QueueAddMessageSchema,
@@ -172,6 +199,8 @@ export const ClientMessageSchema = z.discriminatedUnion('type', [
   OfferPoolRemoveMessageSchema,
   OfferProgramStartMessageSchema,
   OfferProgramStopMessageSchema,
+  ProfileSaveMessageSchema,
+  ProfileDeleteMessageSchema,
 ]);
 
 export type HelloMessage = z.infer<typeof HelloMessageSchema>;
@@ -196,6 +225,8 @@ export type OfferPoolAddMessage = z.infer<typeof OfferPoolAddMessageSchema>;
 export type OfferPoolRemoveMessage = z.infer<typeof OfferPoolRemoveMessageSchema>;
 export type OfferProgramStartMessage = z.infer<typeof OfferProgramStartMessageSchema>;
 export type OfferProgramStopMessage = z.infer<typeof OfferProgramStopMessageSchema>;
+export type ProfileSaveMessage = z.infer<typeof ProfileSaveMessageSchema>;
+export type ProfileDeleteMessage = z.infer<typeof ProfileDeleteMessageSchema>;
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;
 

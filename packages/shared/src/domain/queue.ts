@@ -12,6 +12,13 @@ export const QueueEntrySchema = z.object({
   spinsRemaining: z.number().int().min(0),
   note: z.string().max(200).optional(),
   createdAt: z.number().int().nonnegative(),
+  customerId: z.string().min(1).optional(),
+  purchaseAmount: z.number().nonnegative().optional(),
+  itemsCount: z.number().int().min(1).optional(),
+  profileId: z.string().min(1).optional(),
+  /** Eligibility snapshot computed at registration. Absent = legacy entry
+   *  with no personalization (the whole wheel is winnable). */
+  eligiblePrizeIds: z.array(z.string().min(1)).optional(),
 });
 
 export type QueueEntry = z.infer<typeof QueueEntrySchema>;

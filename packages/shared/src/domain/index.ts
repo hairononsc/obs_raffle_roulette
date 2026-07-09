@@ -6,3 +6,6 @@ export * from './settings.js';
 export * from './chest.js';
 export * from './flash-offer.js';
 export * from './offer-program.js';
+export * from './prize-conditions.js';
+export * from './wheel-profile.js';
+export * from './customer.js';

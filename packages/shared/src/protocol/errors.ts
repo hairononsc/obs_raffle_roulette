@@ -20,6 +20,11 @@ export const ERROR_CODES = [
   'SPIN_NOT_ACTIVE',
   /** No active prize with remaining stock; the spin cannot be launched. */
   'NO_STOCK_AVAILABLE',
+  /** The wheel has prizes, but none is eligible for THIS entry right now
+   *  (conditions, caps or snapshot). Distinct from NO_STOCK_AVAILABLE. */
+  'NO_ELIGIBLE_PRIZES',
+  /** Referenced wheel profile does not exist. */
+  'PROFILE_NOT_FOUND',
   /** The queue entry has no spins left. */
   'NO_SPINS_REMAINING',
   /** The command is not legal in the current server state. */

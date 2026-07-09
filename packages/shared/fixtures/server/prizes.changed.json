@@ -11,7 +11,9 @@
         "stock": 4,
         "color": "#E63946",
         "icon": "prize-jeans",
-        "active": true
+        "active": true,
+        "cost": 0,
+        "conditions": {}
       },
       {
         "id": "prize-02",
@@ -20,7 +22,9 @@
         "stock": null,
         "color": "#457B9D",
         "icon": "prize-discount",
-        "active": true
+        "active": true,
+        "cost": 0,
+        "conditions": {}
       }
     ],
     "segments": [

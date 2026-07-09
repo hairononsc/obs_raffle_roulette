@@ -1,0 +1,15 @@
+{
+  "v": 1,
+  "type": "profiles.changed",
+  "ts": 1730000004500,
+  "payload": {
+    "profiles": [
+      {
+        "id": "profile-01",
+        "name": "Premium",
+        "prizeIds": ["prize-01", "prize-02"],
+        "weightOverrides": { "prize-01": 5 }
+      }
+    ]
+  }
+}

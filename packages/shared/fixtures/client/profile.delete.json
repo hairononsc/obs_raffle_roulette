@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "type": "profile.delete",
+  "ts": 1730000004000,
+  "requestId": "req-profile-delete",
+  "payload": {
+    "profileId": "profile-01"
+  }
+}

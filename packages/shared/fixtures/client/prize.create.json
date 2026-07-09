@@ -10,7 +10,13 @@
       "stock": 5,
       "color": "#E63946",
       "icon": "prize-jeans",
-      "active": true
+      "active": true,
+      "cost": 700,
+      "conditions": {
+        "minPurchase": 700,
+        "maxPerDay": 2,
+        "oncePerCustomer": true
+      }
     }
   }
 }

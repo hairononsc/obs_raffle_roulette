@@ -5,7 +5,9 @@ import { ServerMessageSchema, type ServerMessage } from './server-messages.js';
 
 export type ParseResult<T> = { ok: true; message: T } | { ok: false; error: string };
 
-function parseWith<T>(schema: z.ZodType<T>, raw: string): ParseResult<T> {
+// Input typed as `unknown`: schemas with .default() have an input type
+// that differs from their output type.
+function parseWith<T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>, raw: string): ParseResult<T> {
   let json: unknown;
   try {
     json = JSON.parse(raw);

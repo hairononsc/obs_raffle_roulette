@@ -1,0 +1,13 @@
+{
+  "v": 1,
+  "type": "profile.save",
+  "ts": 1730000004000,
+  "requestId": "req-profile-save",
+  "payload": {
+    "profile": {
+      "name": "Premium",
+      "prizeIds": ["prize-01", "prize-02"],
+      "weightOverrides": { "prize-01": 5 }
+    }
+  }
+}

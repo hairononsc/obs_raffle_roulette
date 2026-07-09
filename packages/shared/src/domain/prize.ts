@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { PrizeConditionsSchema } from './prize-conditions.js';
+
 const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 
 /**
@@ -21,6 +23,11 @@ export const PrizeSchema = z.object({
   color: z.string().regex(HEX_COLOR_REGEX, 'must be a #RRGGBB hex color'),
   icon: z.string().min(1),
   active: z.boolean(),
+  /** Estimated cost in RD$ — informative only (feeds the cost simulator),
+   *  never affects selection. */
+  cost: z.number().min(0).default(0),
+  /** Eligibility rules evaluated per customer; `{}` = unconditional. */
+  conditions: PrizeConditionsSchema.default({}),
 });
 
 export type Prize = z.infer<typeof PrizeSchema>;

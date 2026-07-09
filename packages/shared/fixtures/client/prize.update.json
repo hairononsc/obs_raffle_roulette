@@ -7,7 +7,13 @@
     "prizeId": "prize-01",
     "patch": {
       "weight": 2.5,
-      "stock": 3
+      "stock": 3,
+      "cost": 700,
+      "conditions": {
+        "minPurchase": 700,
+        "maxPerDay": 2,
+        "oncePerCustomer": true
+      }
     }
   }
 }

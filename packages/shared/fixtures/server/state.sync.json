@@ -19,7 +19,12 @@
         "stock": 5,
         "color": "#E63946",
         "icon": "prize-jeans",
-        "active": true
+        "active": true,
+        "cost": 700,
+        "conditions": {
+          "minPurchase": 500,
+          "maxPerDay": 2
+        }
       },
       {
         "id": "prize-02",
@@ -28,7 +33,9 @@
         "stock": null,
         "color": "#457B9D",
         "icon": "prize-discount",
-        "active": true
+        "active": true,
+        "cost": 0,
+        "conditions": {}
       }
     ],
     "segments": [
@@ -54,7 +61,14 @@
         "spinsTotal": 3,
         "spinsRemaining": 2,
         "note": "2 pantalones, promo 2x1",
-        "createdAt": 1730000001000
+        "createdAt": 1730000001000,
+        "customerId": "customer-01",
+        "purchaseAmount": 800,
+        "itemsCount": 2,
+        "eligiblePrizeIds": [
+          "prize-01",
+          "prize-02"
+        ]
       }
     ],
     "activeSpin": null,
@@ -73,6 +87,16 @@
         "durationMs": 600000
       }
     ],
-    "offerProgram": null
+    "offerProgram": null,
+    "profiles": [
+      {
+        "id": "profile-01",
+        "name": "Premium",
+        "prizeIds": [
+          "prize-01",
+          "prize-02"
+        ]
+      }
+    ]
   }
 }

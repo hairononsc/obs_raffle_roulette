@@ -6,6 +6,12 @@
   "payload": {
     "buyerName": "Carlos",
     "spins": 3,
-    "note": "2 pantalones, promo 2x1"
+    "note": "2 pantalones, promo 2x1",
+    "phone": "809-555-0101",
+    "purchaseAmount": 800,
+    "itemsCount": 2,
+    "profileId": "profile-01",
+    "disabledPrizeIds": ["prize-02"],
+    "approvals": ["prize-01"]
   }
 }
