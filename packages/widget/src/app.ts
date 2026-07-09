@@ -1,6 +1,10 @@
 import {
   createMessage,
   type ActiveSpin,
+  type ChestChangedMessage,
+  type ChestState,
+  type FlashOffer,
+  type OfferChangedMessage,
   type ServerMessage,
   type SpinLandedMessage,
   type StateSyncMessage,
@@ -101,8 +105,52 @@ export class WidgetApp {
       case 'theme.changed':
         void this.applyThemeId(message.payload.themeId);
         break;
+      case 'chest.changed':
+        this.onChestChanged(message.payload.chest, message.payload.cause);
+        break;
+      case 'offer.changed':
+        this.onOfferChanged(message.payload.offer, message.payload.cause);
+        break;
       default:
         break;
+    }
+  }
+
+  /** Chest and offer are overlays independent of the wheel's spin FSM:
+   *  they apply immediately in any mode, never deferred. */
+  private onChestChanged(chest: ChestState, cause: ChestChangedMessage['payload']['cause']): void {
+    if (!this.stage.has('chest')) {
+      return;
+    }
+    if (cause === 'keyAdded' && chest.status === 'unlocked') {
+      // The key that filled the chest: fly it in, then run the unlock.
+      this.audio.play('keyGained');
+      this.audio.play('chestOpen');
+      this.stage.chest.playUnlockSequence(chest);
+    } else if (cause === 'keyAdded') {
+      this.audio.play('keyGained');
+      this.stage.chest.playKeyGained(chest);
+    } else if (cause === 'opened') {
+      this.audio.play('chestOpen');
+      this.stage.chest.playUnlockSequence(chest);
+    } else {
+      this.stage.chest.setState(chest);
+    }
+  }
+
+  private onOfferChanged(
+    offer: FlashOffer | null,
+    _cause: OfferChangedMessage['payload']['cause'],
+  ): void {
+    if (!this.stage.has('offer')) {
+      return;
+    }
+    if (offer) {
+      this.audio.play('offerStart');
+      this.stage.offer.show(offer, { animate: true });
+    } else {
+      // cancelled or expired; hide() is idempotent if local expiry ran first.
+      this.stage.offer.hide({ animate: true });
     }
   }
 
@@ -113,6 +161,19 @@ export class WidgetApp {
     this.segments = payload.segments;
     this.audio.applyTheme(this.theme);
     this.stage.applyTheme(this.theme, this.segments);
+
+    // Overlays recover to their final pose without animation: a reloaded
+    // OBS source with an unlocked chest shows the prize immediately.
+    if (this.stage.has('chest')) {
+      this.stage.chest.setState(payload.chest);
+    }
+    if (this.stage.has('offer')) {
+      if (payload.flashOffer && payload.flashOffer.endsAt > Date.now()) {
+        this.stage.offer.show(payload.flashOffer, { animate: false });
+      } else {
+        this.stage.offer.hide({ animate: false });
+      }
+    }
 
     const spin = payload.activeSpin;
     if (!spin) {

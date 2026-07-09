@@ -92,6 +92,20 @@ export class SynthAudio implements AudioEngine {
       case 'sparkle':
         this.arpeggio(ctx, [1567.98, 1975.53, 2349.32], 0.06, 0.12);
         break;
+      case 'keyGained':
+        // Bright pickup: two quick ascending chimes.
+        this.arpeggio(ctx, [1318.51, 1760], 0.09, 0.22);
+        break;
+      case 'chestOpen':
+        // Low creak sweep into a triumphant arpeggio.
+        this.sweep(ctx, 120, 700, 0.7, 0.18);
+        this.arpeggio(ctx, [659.25, 783.99, 987.77, 1318.51], 0.16, 0.28);
+        break;
+      case 'offerStart':
+        // Urgent attention grab: fast rising sweep + double blip.
+        this.sweep(ctx, 400, 1400, 0.25, 0.2);
+        this.arpeggio(ctx, [1046.5, 1046.5], 0.12, 0.25);
+        break;
       default:
         this.blip(ctx, 440, 0.1, 0.2, 'sine');
     }

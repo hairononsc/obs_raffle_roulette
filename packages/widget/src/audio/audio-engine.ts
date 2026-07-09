@@ -1,6 +1,13 @@
 import type { WidgetTheme } from '../theme/theme.js';
 
-export type SoundKey = 'tick' | 'spinStart' | 'winner' | 'confetti';
+export type SoundKey =
+  | 'tick'
+  | 'spinStart'
+  | 'winner'
+  | 'confetti'
+  | 'keyGained'
+  | 'chestOpen'
+  | 'offerStart';
 
 /**
  * Decoupled audio port: scenes emit intents ("a segment boundary was

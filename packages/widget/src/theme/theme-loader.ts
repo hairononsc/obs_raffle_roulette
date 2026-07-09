@@ -44,6 +44,8 @@ function mergeTheme(raw: unknown, themeId: string): unknown {
     wheel: { ...CASINO_THEME.wheel, ...asObject(partial.wheel) },
     pointer: { ...CASINO_THEME.pointer, ...asObject(partial.pointer) },
     banner: { ...CASINO_THEME.banner, ...asObject(partial.banner) },
+    chest: { ...CASINO_THEME.chest, ...asObject(partial.chest) },
+    offer: { ...CASINO_THEME.offer, ...asObject(partial.offer) },
     icons: { ...CASINO_THEME.icons, ...asObject(partial.icons) },
     sounds: { ...CASINO_THEME.sounds, ...asObject(partial.sounds) },
   };
