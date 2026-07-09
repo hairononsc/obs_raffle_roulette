@@ -15,7 +15,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "start": "node packages/backend/dist/main.js",
-    "live": "pnpm build && pnpm start"
+    "live": "pnpm build && pnpm start",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f app",
+    "docker:backup": "mkdir -p backups && docker compose exec db pg_dump -U wheellive wheellive > backups/wheellive-$(date +%Y%m%dT%H%M%S).sql"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

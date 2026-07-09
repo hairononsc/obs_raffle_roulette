@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+data
+docs
+live-assets
+.git
+.DS_Store
+*.log

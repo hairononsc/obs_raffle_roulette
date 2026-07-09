@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: wheellive
+      POSTGRES_PASSWORD: wheellive
+      POSTGRES_DB: wheellive
+    volumes:
+      - wheellive-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wheellive -d wheellive']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WHEELLIVE_DB_URL: postgres://wheellive:wheellive@db:5432/wheellive
+      # Inside the container; isolation comes from the port mapping below.
+      WHEELLIVE_HOST: 0.0.0.0
+    ports:
+      # Only reachable from this machine (OBS and the panel run here).
+      # For LAN access (e.g. TikTok Live Studio on another PC), change
+      # to "8710:8710".
+      - '127.0.0.1:8710:8710'
+    restart: unless-stopped
+
+volumes:
+  wheellive-data:
