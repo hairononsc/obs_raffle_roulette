@@ -297,6 +297,98 @@ describe('WebSocket server (end to end)', () => {
     late.close();
   });
 
+  it('eligibility round-trip: profiles CRUD and personalized snapshots', async () => {
+    const panel = await connect(wsUrl);
+    panel.send(createMessage('hello', { role: 'panel' }));
+    const sync = await panel.waitFor('state.sync');
+    expect(sync.payload.profiles).toEqual([]);
+
+    // Widget cannot manage profiles.
+    const widget = await connect(wsUrl);
+    widget.send(createMessage('hello', { role: 'widget' }));
+    await widget.waitFor('state.sync');
+    widget.send(createMessage('profile.save', { profile: { name: 'X', prizeIds: [] } }, 'req-w'));
+    const forbidden = await widget.waitFor('error');
+    expect(forbidden.payload.code).toBe('FORBIDDEN');
+
+    // Create a gated prize and a profile.
+    panel.send(
+      createMessage(
+        'prize.create',
+        {
+          prize: {
+            name: 'Jean Gratis',
+            weight: 1,
+            stock: 3,
+            color: '#FFD700',
+            icon: '👖',
+            active: true,
+            cost: 700,
+            conditions: { minPurchase: 700 },
+          },
+        },
+        'req-prize',
+      ),
+    );
+    await panel.waitForAck('req-prize');
+    const prizesChanged = panel.received.find((m) => m.type === 'prizes.changed');
+    const jean = (prizesChanged?.type === 'prizes.changed' ? prizesChanged.payload.prizes : []).find(
+      (p) => p.name === 'Jean Gratis',
+    );
+    expect(jean?.conditions.minPurchase).toBe(700);
+
+    panel.send(
+      createMessage(
+        'profile.save',
+        { profile: { name: 'Premium', prizeIds: [jean?.id ?? ''] } },
+        'req-prof',
+      ),
+    );
+    const profilesChanged = await panel.waitFor('profiles.changed');
+    expect(profilesChanged.payload.profiles[0]?.name).toBe('Premium');
+    const profileId = profilesChanged.payload.profiles[0]?.id ?? '';
+
+    // Low purchase: the gated prize is excluded from the snapshot.
+    panel.send(
+      createMessage(
+        'queue.add',
+        { buyerName: 'ClienteBajo', spins: 1, purchaseAmount: 500 },
+        'req-low',
+      ),
+    );
+    await panel.waitForAck('req-low');
+    let queue = panel.received.filter((m) => m.type === 'queue.changed').at(-1);
+    let entry =
+      queue?.type === 'queue.changed'
+        ? queue.payload.queue.find((e) => e.buyerName === 'ClienteBajo')
+        : undefined;
+    expect(entry?.eligiblePrizeIds).toBeDefined();
+    expect(entry?.eligiblePrizeIds).not.toContain(jean?.id);
+
+    // High purchase: included.
+    panel.send(
+      createMessage(
+        'queue.add',
+        { buyerName: 'ClienteAlto', spins: 1, purchaseAmount: 900, profileId },
+        'req-high',
+      ),
+    );
+    await panel.waitForAck('req-high');
+    queue = panel.received.filter((m) => m.type === 'queue.changed').at(-1);
+    entry =
+      queue?.type === 'queue.changed'
+        ? queue.payload.queue.find((e) => e.buyerName === 'ClienteAlto')
+        : undefined;
+    expect(entry?.eligiblePrizeIds).toContain(jean?.id);
+    expect(entry?.customerId).toBeDefined();
+
+    panel.send(createMessage('profile.delete', { profileId }, 'req-del'));
+    await panel.waitForAck('req-del');
+
+    panel.close();
+    widget.close();
+  });
+
   it('serves history over REST after spins complete', async () => {
     const base = wsUrl.replace(/^ws/, 'http').replace('/ws', '');
     const response = await fetch(`${base}/api/history`);

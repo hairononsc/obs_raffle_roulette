@@ -10,6 +10,7 @@ import type {
   Prize,
   QueueEntry,
   SpinSettings,
+  WheelProfile,
   WheelSegment,
 } from '@wheellive/shared';
 
@@ -38,6 +39,7 @@ export type DomainEvent =
   | { kind: 'theme.changed'; themeId: string }
   | { kind: 'chest.changed'; chest: ChestState; cause: ChestChangeCause }
   | { kind: 'offer.changed'; offer: FlashOffer | null; cause: OfferChangeCause }
+  | { kind: 'profiles.changed'; profiles: WheelProfile[] }
   | { kind: 'offer.pool.changed'; pool: OfferTemplate[] }
   | {
       kind: 'offer.program.changed';

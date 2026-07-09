@@ -1,8 +1,10 @@
 import type { ActiveSpin } from '@wheellive/shared';
 
 import type { SpinTiming } from '../../config.js';
+import { applyWeightOverrides, filterEligibleAtLaunch } from '../../domain/eligibility.js';
 import { DomainError } from '../../domain/errors.js';
-import { selectPrize } from '../../domain/prize-selection.js';
+import { isEligible, selectPrize } from '../../domain/prize-selection.js';
+import { dayStart, localDayHour, monthStart, weekStart } from '../../domain/time-windows.js';
 import { createSpinAnimation } from '../../domain/spin-animation.js';
 import { assertTransition } from '../../domain/spin-lifecycle.js';
 import { toActiveSpin, type SpinRecord } from '../../domain/spin-record.js';
@@ -23,6 +25,8 @@ export interface SpinServiceDeps {
   rng: RandomSource;
   scheduler: Scheduler;
   timing: SpinTiming;
+  /** Read-only offer state for the requiresActiveOffer dynamic rule. */
+  offers: { getActive(): unknown };
 }
 
 /**
@@ -65,9 +69,42 @@ export class SpinService implements ActiveSpinGuard {
       }
 
       const allPrizes = await repos.prizes.list();
-      const prize = selectPrize(allPrizes, () => this.deps.rng.next());
-      if (!prize) {
+      if (!allPrizes.some(isEligible)) {
         throw new DomainError('NO_STOCK_AVAILABLE', 'no active prize with stock remaining');
+      }
+
+      // Per-customer eligibility: the entry's registration snapshot plus a
+      // re-check of the rules that change over time (caps, offer, schedule).
+      const now = this.deps.clock.now();
+      const snapshot = entry.eligiblePrizeIds ? new Set(entry.eligiblePrizeIds) : null;
+      const candidates = filterEligibleAtLaunch(allPrizes, snapshot, {
+        ...localDayHour(now),
+        offerActive: this.deps.offers.getActive() !== null,
+        customerAwardCounts: entry.customerId
+          ? await repos.spins.countAwardsByCustomer(entry.customerId)
+          : {},
+        prizeAwardCounts: await repos.spins.countAwardsByPrize({
+          day: dayStart(now),
+          week: weekStart(now),
+          month: monthStart(now),
+        }),
+      });
+      if (candidates.length === 0) {
+        throw new DomainError(
+          'NO_ELIGIBLE_PRIZES',
+          'no prize is eligible for this entry right now',
+        );
+      }
+
+      const profile = entry.profileId
+        ? (await repos.settings.getWheelProfiles()).find((p) => p.id === entry.profileId)
+        : undefined;
+      const prize = selectPrize(
+        applyWeightOverrides(candidates, profile?.weightOverrides),
+        () => this.deps.rng.next(),
+      );
+      if (!prize) {
+        throw new DomainError('INTERNAL_ERROR', 'selection failed over non-empty candidates');
       }
 
       const segments = computeSegments(allPrizes);

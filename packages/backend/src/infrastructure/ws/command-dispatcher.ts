@@ -4,6 +4,7 @@ import { DomainError } from '../../domain/errors.js';
 import type { ChestService } from '../../application/services/chest-service.js';
 import type { OfferProgramService } from '../../application/services/offer-program-service.js';
 import type { OfferService } from '../../application/services/offer-service.js';
+import type { ProfileService } from '../../application/services/profile-service.js';
 import type { PrizeService } from '../../application/services/prize-service.js';
 import type { QueueService } from '../../application/services/queue-service.js';
 import type { SettingsService } from '../../application/services/settings-service.js';
@@ -31,6 +32,8 @@ const ROLE_PERMISSIONS: Record<ClientRole, ReadonlySet<ClientMessage['type']>> =
     'offer.pool.remove',
     'offer.program.start',
     'offer.program.stop',
+    'profile.save',
+    'profile.delete',
   ]),
   widget: new Set(['wheel.spin.landed']),
 };
@@ -43,6 +46,7 @@ export interface DispatcherServices {
   chest: ChestService;
   offers: OfferService;
   offerProgram: OfferProgramService;
+  profiles: ProfileService;
 }
 
 /** Routes an authenticated client message to the right application service. */
@@ -59,11 +63,24 @@ export class CommandDispatcher {
 
     switch (message.type) {
       case 'queue.add': {
-        const { buyerName, spins, note } = message.payload;
+        const payload = message.payload;
         await this.services.queue.add({
-          buyerName,
-          spins,
-          ...(note !== undefined && { note }),
+          buyerName: payload.buyerName,
+          spins: payload.spins,
+          ...(payload.note !== undefined && { note: payload.note }),
+          ...(payload.phone !== undefined && { phone: payload.phone }),
+          ...(payload.purchaseAmount !== undefined && {
+            purchaseAmount: payload.purchaseAmount,
+          }),
+          ...(payload.itemsCount !== undefined && { itemsCount: payload.itemsCount }),
+          ...(payload.profileId !== undefined && { profileId: payload.profileId }),
+          ...(payload.enabledPrizeIds !== undefined && {
+            enabledPrizeIds: payload.enabledPrizeIds,
+          }),
+          ...(payload.disabledPrizeIds !== undefined && {
+            disabledPrizeIds: payload.disabledPrizeIds,
+          }),
+          ...(payload.approvals !== undefined && { approvals: payload.approvals }),
         });
         return;
       }
@@ -133,6 +150,12 @@ export class CommandDispatcher {
         return;
       case 'offer.program.stop':
         await this.services.offerProgram.stop();
+        return;
+      case 'profile.save':
+        await this.services.profiles.save(message.payload.profile);
+        return;
+      case 'profile.delete':
+        await this.services.profiles.delete(message.payload.profileId);
         return;
     }
   }

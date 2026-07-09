@@ -39,6 +39,7 @@ function createContext(rolls: number[] = []): Context {
     rng: new SequenceRandom(rolls),
     scheduler,
     timing: TIMING,
+    offers: { getActive: () => null },
   });
   return { uow, events, scheduler, clock, service };
 }
@@ -186,10 +187,121 @@ describe('SpinService.recoverOnBoot', () => {
       rng: new SequenceRandom(),
       scheduler: new ManualScheduler(),
       timing: TIMING,
+      offers: { getActive: () => null },
     }).recoverOnBoot();
 
     expect(recovered).toBe(1);
     const history = await ctx.uow.run((repos) => repos.spins.history(10, 0));
     expect(history.total).toBe(1);
+  });
+});
+
+describe('SpinService.launch — per-customer eligibility', () => {
+  async function setup(rolls: number[]): Promise<Context> {
+    const ctx = createContext(rolls);
+    await insertPrizes(ctx.uow, ctx.clock, [
+      testPrize({ id: 'jeans', name: 'Jean', weight: 1, stock: 5 }),
+      testPrize({ id: 'discount', name: 'Descuento', weight: 4, stock: null }),
+    ]);
+    return ctx;
+  }
+
+  it('lands only inside the entry snapshot', async () => {
+    // rng 0.99 would pick "discount" over the whole wheel; the snapshot
+    // only allows "jeans".
+    const ctx = await setup([0.99, 0]);
+    await insertQueueEntry(ctx.uow, {
+      id: 'entry-s',
+      customerId: 'customer-001',
+      eligiblePrizeIds: ['jeans'],
+    });
+    const spin = await ctx.service.launch('entry-s');
+    expect(spin.prizeId).toBe('jeans');
+  });
+
+  it('throws NO_ELIGIBLE_PRIZES for an empty snapshot, NO_STOCK_AVAILABLE for an empty wheel', async () => {
+    const ctx = await setup([0.5]);
+    await insertQueueEntry(ctx.uow, { id: 'entry-e', eligiblePrizeIds: [] });
+    await expect(ctx.service.launch('entry-e')).rejects.toThrow(/NO_ELIGIBLE_PRIZES|eligible/);
+
+    const empty = createContext([0.5]);
+    await insertQueueEntry(empty.uow, { id: 'entry-x' });
+    await expect(empty.service.launch('entry-x')).rejects.toThrow(/no active prize/);
+  });
+
+  it('legacy entries without snapshot use the whole wheel', async () => {
+    const ctx = await setup([0.99, 0]);
+    await insertQueueEntry(ctx.uow, { id: 'entry-l' });
+    const spin = await ctx.service.launch('entry-l');
+    expect(spin.prizeId).toBe('discount');
+  });
+
+  it('profile weight overrides shift the selection', async () => {
+    // Base weights jeans=1/discount=4: roll 0.5 -> threshold 2.5 -> discount.
+    // Override jeans=100: total 104, threshold 52 -> jeans.
+    const ctx = await setup([0.5, 0]);
+    await ctx.uow.run((repos) =>
+      repos.settings.setWheelProfiles([
+        { id: 'boost', name: 'Boost', prizeIds: ['jeans', 'discount'], weightOverrides: { jeans: 100 } },
+      ]),
+    );
+    await insertQueueEntry(ctx.uow, {
+      id: 'entry-p',
+      profileId: 'boost',
+      eligiblePrizeIds: ['jeans', 'discount'],
+    });
+    const spin = await ctx.service.launch('entry-p');
+    expect(spin.prizeId).toBe('jeans');
+  });
+
+  it('daily caps fill between registration and spin, and reset across midnight', async () => {
+    const ctx = createContext([0.5, 0, 0.5, 0, 0.5, 0]);
+    await insertPrizes(ctx.uow, ctx.clock, [
+      testPrize({ id: 'cap', name: 'Cap', weight: 1, conditions: { maxPerDay: 1 } }),
+    ]);
+    await insertQueueEntry(ctx.uow, { id: 'entry-a', eligiblePrizeIds: ['cap'] });
+    await insertQueueEntry(ctx.uow, { id: 'entry-b', eligiblePrizeIds: ['cap'], spinsTotal: 2, spinsRemaining: 2 });
+
+    await ctx.service.launch('entry-a');
+    await ctx.scheduler.runPending(); // safety timer completes the spin
+
+    // Same day: the cap is already consumed (in-flight counts by started_at).
+    await expect(ctx.service.launch('entry-b')).rejects.toThrow(/NO_ELIGIBLE_PRIZES|eligible/);
+
+    ctx.clock.advance(24 * 3_600_000); // next local day: cap resets
+    const spin = await ctx.service.launch('entry-b');
+    expect(spin.prizeId).toBe('cap');
+  });
+
+  it('oncePerCustomer blocks the second spin of the same entry', async () => {
+    const ctx = createContext([0.1, 0, 0.1, 0]);
+    await insertPrizes(ctx.uow, ctx.clock, [
+      testPrize({ id: 'once', name: 'Único', weight: 1, conditions: { oncePerCustomer: true } }),
+    ]);
+    await insertQueueEntry(ctx.uow, {
+      id: 'entry-o',
+      customerId: 'customer-042',
+      eligiblePrizeIds: ['once'],
+      spinsTotal: 2,
+      spinsRemaining: 2,
+    });
+
+    const first = await ctx.service.launch('entry-o');
+    expect(first.prizeId).toBe('once');
+    await ctx.scheduler.runPending();
+
+    await expect(ctx.service.launch('entry-o')).rejects.toThrow(/NO_ELIGIBLE_PRIZES|eligible/);
+  });
+
+  it('persists the customer id on the spin record', async () => {
+    const ctx = await setup([0.05, 0]);
+    await insertQueueEntry(ctx.uow, {
+      id: 'entry-c',
+      customerId: 'customer-007',
+      eligiblePrizeIds: ['jeans', 'discount'],
+    });
+    await ctx.service.launch('entry-c');
+    const counts = await ctx.uow.run((repos) => repos.spins.countAwardsByCustomer('customer-007'));
+    expect(Object.values(counts).reduce((a, b) => a + b, 0)).toBe(1);
   });
 });

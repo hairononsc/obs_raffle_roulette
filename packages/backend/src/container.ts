@@ -6,6 +6,7 @@ import { HistoryService } from './application/services/history-service.js';
 import { OfferProgramService } from './application/services/offer-program-service.js';
 import { OfferService } from './application/services/offer-service.js';
 import { PrizeService } from './application/services/prize-service.js';
+import { ProfileService } from './application/services/profile-service.js';
 import { QueueService } from './application/services/queue-service.js';
 import { SettingsService } from './application/services/settings-service.js';
 import { SnapshotService } from './application/services/snapshot-service.js';
@@ -37,6 +38,7 @@ export interface AppServices {
   chest: ChestService;
   offers: OfferService;
   offerProgram: OfferProgramService;
+  profiles: ProfileService;
 }
 
 export interface WheelLiveApp {
@@ -67,6 +69,9 @@ export async function createApp(config: AppConfig): Promise<WheelLiveApp> {
   const uow = new KyselyUnitOfWork(db);
   const events = new SimpleEventBus();
 
+  // OfferService first: the eligibility engine (queue + spins) reads its
+  // active-offer state for the requiresActiveOffer rule.
+  const offers = new OfferService({ uow, events, clock: systemClock, scheduler: nodeScheduler });
   const spins = new SpinService({
     uow,
     events,
@@ -75,13 +80,14 @@ export async function createApp(config: AppConfig): Promise<WheelLiveApp> {
     rng: mathRandomSource,
     scheduler: nodeScheduler,
     timing: config.timing,
+    offers,
   });
-  const queue = new QueueService(uow, events, cryptoIdGenerator, systemClock);
+  const queue = new QueueService(uow, events, cryptoIdGenerator, systemClock, offers);
   const prizes = new PrizeService(uow, events, cryptoIdGenerator, systemClock, spins);
   const settings = new SettingsService(uow, events);
   const history = new HistoryService(uow);
   const chest = new ChestService(uow, events);
-  const offers = new OfferService({ uow, events, clock: systemClock, scheduler: nodeScheduler });
+  const profiles = new ProfileService(uow, events, cryptoIdGenerator);
   const offerProgram = new OfferProgramService({
     uow,
     events,
@@ -113,6 +119,7 @@ export async function createApp(config: AppConfig): Promise<WheelLiveApp> {
     chest,
     offers,
     offerProgram,
+    profiles,
   });
 
   attachWebSocketServer({
@@ -126,7 +133,18 @@ export async function createApp(config: AppConfig): Promise<WheelLiveApp> {
   return {
     config,
     fastify,
-    services: { queue, prizes, settings, spins, history, snapshot, chest, offers, offerProgram },
+    services: {
+      queue,
+      prizes,
+      settings,
+      spins,
+      history,
+      snapshot,
+      chest,
+      offers,
+      offerProgram,
+      profiles,
+    },
     start: () => fastify.listen({ host: config.host, port: config.port }),
     stop: async () => {
       await fastify.close();

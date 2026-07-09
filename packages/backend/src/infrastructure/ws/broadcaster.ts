@@ -4,6 +4,7 @@ import {
   type OfferChangedMessage,
   type OfferPoolChangedMessage,
   type OfferProgramChangedMessage,
+  type ProfilesChangedMessage,
   type PrizesChangedMessage,
   type QueueChangedMessage,
   type ServerMessage,
@@ -50,6 +51,10 @@ function toServerMessage(event: DomainEvent): ServerMessage {
       return createMessage<OfferChangedMessage>('offer.changed', {
         offer: event.offer,
         cause: event.cause,
+      });
+    case 'profiles.changed':
+      return createMessage<ProfilesChangedMessage>('profiles.changed', {
+        profiles: event.profiles,
       });
     case 'offer.pool.changed':
       return createMessage<OfferPoolChangedMessage>('offer.pool.changed', { pool: event.pool });
