@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { OfferTemplateInputSchema } from '../domain/offer-program.js';
 import { PrizeInputSchema } from '../domain/prize.js';
 import { SpinSettingsSchema } from '../domain/settings.js';
 import { defineMessage } from './envelope.js';
@@ -120,6 +121,34 @@ export const OfferStartMessageSchema = defineMessage(
 /** Panel cancels the active flash offer before it expires. */
 export const OfferCancelMessageSchema = defineMessage('offer.cancel', z.object({}));
 
+/** Panel saves an offer template to the program pool. */
+export const OfferPoolAddMessageSchema = defineMessage(
+  'offer.pool.add',
+  z.object({ template: OfferTemplateInputSchema }),
+);
+
+/** Panel removes a template from the pool (no-op if it does not exist). */
+export const OfferPoolRemoveMessageSchema = defineMessage(
+  'offer.pool.remove',
+  z.object({ templateId: z.string().min(1) }),
+);
+
+/**
+ * Panel starts an offer program: random pool offers fired at random times
+ * within the live window. Rejected while a program is active or the pool
+ * is empty.
+ */
+export const OfferProgramStartMessageSchema = defineMessage(
+  'offer.program.start',
+  z.object({
+    liveDurationMs: z.number().int().min(1_800_000).max(21_600_000),
+    offerCount: z.number().int().min(1).max(10),
+  }),
+);
+
+/** Panel stops the active program (no-op if none). */
+export const OfferProgramStopMessageSchema = defineMessage('offer.program.stop', z.object({}));
+
 export const ClientMessageSchema = z.discriminatedUnion('type', [
   HelloMessageSchema,
   QueueAddMessageSchema,
@@ -139,6 +168,10 @@ export const ClientMessageSchema = z.discriminatedUnion('type', [
   ChestConfigureMessageSchema,
   OfferStartMessageSchema,
   OfferCancelMessageSchema,
+  OfferPoolAddMessageSchema,
+  OfferPoolRemoveMessageSchema,
+  OfferProgramStartMessageSchema,
+  OfferProgramStopMessageSchema,
 ]);
 
 export type HelloMessage = z.infer<typeof HelloMessageSchema>;
@@ -159,6 +192,10 @@ export type ChestResetMessage = z.infer<typeof ChestResetMessageSchema>;
 export type ChestConfigureMessage = z.infer<typeof ChestConfigureMessageSchema>;
 export type OfferStartMessage = z.infer<typeof OfferStartMessageSchema>;
 export type OfferCancelMessage = z.infer<typeof OfferCancelMessageSchema>;
+export type OfferPoolAddMessage = z.infer<typeof OfferPoolAddMessageSchema>;
+export type OfferPoolRemoveMessage = z.infer<typeof OfferPoolRemoveMessageSchema>;
+export type OfferProgramStartMessage = z.infer<typeof OfferProgramStartMessageSchema>;
+export type OfferProgramStopMessage = z.infer<typeof OfferProgramStopMessageSchema>;
 
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;
 

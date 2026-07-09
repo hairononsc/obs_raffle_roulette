@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { ChestStateSchema } from '../domain/chest.js';
 import { FlashOfferSchema } from '../domain/flash-offer.js';
+import { OfferProgramStateSchema, OfferTemplateSchema } from '../domain/offer-program.js';
 import { PrizeSchema } from '../domain/prize.js';
 import { QueueEntrySchema } from '../domain/queue.js';
 import { SpinSettingsSchema } from '../domain/settings.js';
@@ -27,6 +28,8 @@ export const StateSyncMessageSchema = defineMessage(
     activeSpin: ActiveSpinSchema.nullable(),
     chest: ChestStateSchema,
     flashOffer: FlashOfferSchema.nullable(),
+    offerPool: z.array(OfferTemplateSchema),
+    offerProgram: OfferProgramStateSchema.nullable(),
   }),
 );
 
@@ -123,6 +126,25 @@ export const OfferChangedMessageSchema = defineMessage(
   }),
 );
 
+/** Broadcast whenever the offer template pool changes. */
+export const OfferPoolChangedMessageSchema = defineMessage(
+  'offer.pool.changed',
+  z.object({ pool: z.array(OfferTemplateSchema) }),
+);
+
+/**
+ * Broadcast on program lifecycle changes: `started` (full plan), `advanced`
+ * (a slot was consumed — fired or skipped), `stopped` (manual) and
+ * `finished` (no slots left; `program` is null for the last two).
+ */
+export const OfferProgramChangedMessageSchema = defineMessage(
+  'offer.program.changed',
+  z.object({
+    program: OfferProgramStateSchema.nullable(),
+    cause: z.enum(['started', 'advanced', 'stopped', 'finished']),
+  }),
+);
+
 export const ServerMessageSchema = z.discriminatedUnion('type', [
   StateSyncMessageSchema,
   AckMessageSchema,
@@ -135,6 +157,8 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
   ThemeChangedMessageSchema,
   ChestChangedMessageSchema,
   OfferChangedMessageSchema,
+  OfferPoolChangedMessageSchema,
+  OfferProgramChangedMessageSchema,
 ]);
 
 export type StateSyncMessage = z.infer<typeof StateSyncMessageSchema>;
@@ -148,6 +172,8 @@ export type SettingsChangedMessage = z.infer<typeof SettingsChangedMessageSchema
 export type ThemeChangedMessage = z.infer<typeof ThemeChangedMessageSchema>;
 export type ChestChangedMessage = z.infer<typeof ChestChangedMessageSchema>;
 export type OfferChangedMessage = z.infer<typeof OfferChangedMessageSchema>;
+export type OfferPoolChangedMessage = z.infer<typeof OfferPoolChangedMessageSchema>;
+export type OfferProgramChangedMessage = z.infer<typeof OfferProgramChangedMessageSchema>;
 
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;
 

@@ -1,0 +1,13 @@
+{
+  "v": 1,
+  "type": "offer.pool.add",
+  "ts": 1730000003000,
+  "requestId": "req-pool-add",
+  "payload": {
+    "template": {
+      "title": "2x1 en jeans premium",
+      "description": "Solo durante los próximos 10 minutos",
+      "durationMs": 600000
+    }
+  }
+}

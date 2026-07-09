@@ -1,0 +1,10 @@
+{
+  "v": 1,
+  "type": "offer.program.start",
+  "ts": 1730000003000,
+  "requestId": "req-program-start",
+  "payload": {
+    "liveDurationMs": 10800000,
+    "offerCount": 4
+  }
+}

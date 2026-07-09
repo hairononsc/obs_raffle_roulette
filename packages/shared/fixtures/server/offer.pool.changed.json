@@ -1,0 +1,15 @@
+{
+  "v": 1,
+  "type": "offer.pool.changed",
+  "ts": 1730000003500,
+  "payload": {
+    "pool": [
+      {
+        "id": "offer-tpl-01",
+        "title": "2x1 en jeans premium",
+        "description": "Solo durante los próximos 10 minutos",
+        "durationMs": 600000
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "v": 1,
+  "type": "offer.pool.remove",
+  "ts": 1730000003000,
+  "requestId": "req-pool-remove",
+  "payload": {
+    "templateId": "offer-tpl-01"
+  }
+}

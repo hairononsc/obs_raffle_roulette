@@ -1,0 +1,14 @@
+{
+  "v": 1,
+  "type": "offer.program.changed",
+  "ts": 1730000003600,
+  "payload": {
+    "program": {
+      "startedAt": 1730000003600,
+      "endsAt": 1730010803600,
+      "fireAt": [1730002000000, 1730006500000],
+      "totalCount": 4
+    },
+    "cause": "started"
+  }
+}

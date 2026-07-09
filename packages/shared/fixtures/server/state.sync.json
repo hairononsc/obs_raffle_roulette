@@ -64,6 +64,15 @@
       "prize": "👖 Jean Gratis",
       "status": "locked"
     },
-    "flashOffer": null
+    "flashOffer": null,
+    "offerPool": [
+      {
+        "id": "offer-tpl-01",
+        "title": "2x1 en jeans premium",
+        "description": "Solo durante los próximos 10 minutos",
+        "durationMs": 600000
+      }
+    ],
+    "offerProgram": null
   }
 }

@@ -5,3 +5,4 @@ export * from './spin.js';
 export * from './settings.js';
 export * from './chest.js';
 export * from './flash-offer.js';
+export * from './offer-program.js';

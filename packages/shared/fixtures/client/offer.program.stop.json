@@ -1,0 +1,7 @@
+{
+  "v": 1,
+  "type": "offer.program.stop",
+  "ts": 1730000003000,
+  "requestId": "req-program-stop",
+  "payload": {}
+}
