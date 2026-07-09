@@ -4,6 +4,7 @@ import type {
   FlashOffer,
   OfferProgramState,
   OfferTemplate,
+  WheelProfile,
   Prize,
   QueueEntry,
   ServerMessage,
@@ -25,6 +26,7 @@ export interface PanelState {
   flashOffer: FlashOffer | null;
   offerPool: OfferTemplate[];
   offerProgram: OfferProgramState | null;
+  profiles: WheelProfile[];
 }
 
 type Listener = (state: PanelState) => void;
@@ -49,6 +51,7 @@ export class PanelStore {
     flashOffer: null,
     offerPool: [],
     offerProgram: null,
+    profiles: [],
   };
 
   subscribe(listener: Listener): () => void {
@@ -76,6 +79,7 @@ export class PanelStore {
         this.state.flashOffer = payload.flashOffer;
         this.state.offerPool = payload.offerPool;
         this.state.offerProgram = payload.offerProgram;
+        this.state.profiles = payload.profiles;
         break;
       }
       case 'queue.changed':
@@ -108,6 +112,9 @@ export class PanelStore {
         break;
       case 'offer.program.changed':
         this.state.offerProgram = message.payload.program;
+        break;
+      case 'profiles.changed':
+        this.state.profiles = message.payload.profiles;
         break;
       default:
         return;

@@ -4,11 +4,13 @@ import { ToastCenter } from './core/toast.js';
 import { PanelSocket, resolveWsUrl } from './net/panel-socket.js';
 import { PanelStore } from './state/store.js';
 import { ChestControlView } from './ui/chest-control-view.js';
+import { CostSimulatorView } from './ui/cost-simulator-view.js';
 import { HeaderView } from './ui/header-view.js';
 import { HistoryView } from './ui/history-view.js';
 import { OfferControlView } from './ui/offer-control-view.js';
 import { OfferProgramView } from './ui/offer-program-view.js';
 import { PrizesView } from './ui/prizes-view.js';
+import { ProfilesView } from './ui/profiles-view.js';
 import { QueueView } from './ui/queue-view.js';
 import { SettingsView } from './ui/settings-view.js';
 import { TabBar } from './ui/tabs.js';
@@ -28,6 +30,8 @@ export function startPanel(container: HTMLElement): void {
   const chest = new ChestControlView(actions);
   const offer = new OfferControlView(actions);
   const offerProgram = new OfferProgramView(actions);
+  const profiles = new ProfilesView(actions);
+  const simulator = new CostSimulatorView();
 
   // One pane per module. "Ruleta" keeps the two-column layout because the
   // queue and the history are what the operator watches during the live.
@@ -40,7 +44,11 @@ export function startPanel(container: HTMLElement): void {
     offer.root,
     offerProgram.root,
   ]);
-  const prizesPane = el('main', { className: 'layout layout-single pane' }, [prizes.root]);
+  const prizesPane = el('main', { className: 'layout layout-single pane' }, [
+    prizes.root,
+    profiles.root,
+    simulator.root,
+  ]);
   const settingsPane = el('main', { className: 'layout layout-single pane' }, [settings.root]);
 
   const tabs = new TabBar([
@@ -70,6 +78,8 @@ export function startPanel(container: HTMLElement): void {
     chest.update(store.state);
     offer.update(store.state);
     offerProgram.update(store.state);
+    profiles.update(store.state);
+    simulator.update(store.state);
 
     // Tab badges: at-a-glance module status without switching tabs.
     const chestState = store.state.chest;

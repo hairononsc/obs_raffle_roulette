@@ -7,8 +7,8 @@ const SYNC_PAYLOAD: StateSyncMessage['payload'] = {
   settings: { durationMs: 8000, extraRotations: { min: 4, max: 7 } },
   themeId: 'casino',
   prizes: [
-    { id: 'a', name: 'A', weight: 1, stock: 5, color: '#111111', icon: 'x', active: true },
-    { id: 'b', name: 'B', weight: 3, stock: null, color: '#222222', icon: 'x', active: true },
+    { id: 'a', name: 'A', weight: 1, stock: 5, color: '#111111', icon: 'x', active: true, cost: 0, conditions: {} },
+    { id: 'b', name: 'B', weight: 3, stock: null, color: '#222222', icon: 'x', active: true, cost: 0, conditions: {} },
   ],
   segments: [],
   queue: [{ id: 'e1', buyerName: 'Carlos', spinsTotal: 2, spinsRemaining: 2, createdAt: 1 }],
@@ -17,6 +17,7 @@ const SYNC_PAYLOAD: StateSyncMessage['payload'] = {
   flashOffer: null,
   offerPool: [{ id: 'tpl-1', title: '2x1', description: '', durationMs: 600_000 }],
   offerProgram: null,
+  profiles: [{ id: 'p1', name: 'Premium', prizeIds: ['a'] }],
 };
 
 function sync(): ServerMessage {
@@ -76,6 +77,15 @@ describe('PanelStore', () => {
 
     store.apply(createMessage('offer.program.changed', { program: null, cause: 'finished' }));
     expect(store.state.offerProgram).toBeNull();
+  });
+
+  it('applies profiles from sync and broadcasts', () => {
+    const store = new PanelStore();
+    store.apply(sync());
+    expect(store.state.profiles).toHaveLength(1);
+
+    store.apply(createMessage('profiles.changed', { profiles: [] }));
+    expect(store.state.profiles).toHaveLength(0);
   });
 
   it('tracks the active spin through its lifecycle', () => {

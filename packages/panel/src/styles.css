@@ -587,3 +587,169 @@ input[type='range'] {
   font-weight: 700;
   margin-bottom: 10px;
 }
+
+/* --- Ruleta inteligente: ajuste de premios en el alta --- */
+
+.queue-context {
+  margin-top: -6px;
+}
+
+.prize-adjust {
+  margin-bottom: 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.prize-adjust summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.prize-adjust-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.prize-adjust-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.warn-badge {
+  color: var(--accent);
+}
+
+.approve-label {
+  margin-left: auto;
+}
+
+.warn-inline {
+  color: var(--accent);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.eligibility-chip {
+  display: inline-block;
+  background: #0b1220;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 1px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+}
+
+/* --- Condiciones --- */
+
+.conditions-dialog {
+  min-width: 460px;
+}
+
+.cond-section {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 4px;
+  margin-top: 6px;
+}
+
+.cond-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.cond-row input[type='number'] {
+  width: 110px;
+  margin-left: auto;
+}
+
+.day-toggles {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.day-toggle {
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 6px;
+  width: 30px;
+  padding: 5px 0;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.day-toggle.day-on {
+  background: var(--accent);
+  color: #4a3a05;
+  border-color: var(--accent);
+}
+
+.day-toggle:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- Perfiles --- */
+
+.profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0b1220;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.profile-prizes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.profile-prize-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.profile-prize-row input[type='number'] {
+  width: 110px;
+  margin-left: auto;
+}
+
+/* --- Simulador --- */
+
+.sim-total {
+  margin-top: 10px;
+  font-size: 15px;
+}
+
+.whatif-line {
+  font-size: 13px;
+}

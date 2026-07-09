@@ -1,5 +1,6 @@
 import type {
   ChestCloseMessage,
+  WheelProfileInput,
   ChestConfigureMessage,
   ChestKeyAddMessage,
   ChestKeyRemoveMessage,
@@ -16,6 +17,8 @@ import type {
   PrizeDeleteMessage,
   PrizeInput,
   PrizeUpdateMessage,
+  ProfileDeleteMessage,
+  ProfileSaveMessage,
   QueueAddMessage,
   QueueRemoveMessage,
   SettingsUpdateMessage,
@@ -27,6 +30,19 @@ import type {
 import { PanelRequestError, type PanelSocket } from './net/panel-socket.js';
 import type { ToastCenter } from './core/toast.js';
 
+export interface AddBuyerParams {
+  buyerName: string;
+  spins: number;
+  note?: string;
+  phone?: string;
+  purchaseAmount?: number;
+  itemsCount?: number;
+  profileId?: string;
+  enabledPrizeIds?: string[];
+  disabledPrizeIds?: string[];
+  approvals?: string[];
+}
+
 /**
  * All operator commands. Every action reports its outcome through toasts;
  * views never talk to the socket directly.
@@ -37,15 +53,40 @@ export class PanelActions {
     private readonly toast: ToastCenter,
   ) {}
 
-  async addBuyer(buyerName: string, spins: number, note: string): Promise<void> {
+  async addBuyer(params: AddBuyerParams): Promise<void> {
+    const { buyerName, spins, note, ...rest } = params;
     await this.exec(
       () =>
         this.socket.request<QueueAddMessage>('queue.add', {
           buyerName,
           spins,
-          ...(note !== '' && { note }),
+          ...(note !== undefined && note !== '' && { note }),
+          ...(rest.phone !== undefined && { phone: rest.phone }),
+          ...(rest.purchaseAmount !== undefined && { purchaseAmount: rest.purchaseAmount }),
+          ...(rest.itemsCount !== undefined && { itemsCount: rest.itemsCount }),
+          ...(rest.profileId !== undefined && { profileId: rest.profileId }),
+          ...(rest.enabledPrizeIds !== undefined &&
+            rest.enabledPrizeIds.length > 0 && { enabledPrizeIds: rest.enabledPrizeIds }),
+          ...(rest.disabledPrizeIds !== undefined &&
+            rest.disabledPrizeIds.length > 0 && { disabledPrizeIds: rest.disabledPrizeIds }),
+          ...(rest.approvals !== undefined &&
+            rest.approvals.length > 0 && { approvals: rest.approvals }),
         }),
       `${buyerName} agregado con ${String(spins)} giro(s)`,
+    );
+  }
+
+  async saveProfile(profile: WheelProfileInput & { id?: string }): Promise<void> {
+    await this.exec(
+      () => this.socket.request<ProfileSaveMessage>('profile.save', { profile }),
+      'Perfil guardado',
+    );
+  }
+
+  async deleteProfile(profileId: string): Promise<void> {
+    await this.exec(
+      () => this.socket.request<ProfileDeleteMessage>('profile.delete', { profileId }),
+      'Perfil eliminado',
     );
   }
 
@@ -186,6 +227,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   NO_SPINS_REMAINING: 'Este comprador ya no tiene giros',
   ENTRY_NOT_FOUND: 'El comprador ya no está en la cola',
   PRIZE_NOT_FOUND: 'El premio ya no existe',
+  NO_ELIGIBLE_PRIZES: 'Este cliente no tiene premios elegibles ahora',
+  PROFILE_NOT_FOUND: 'El perfil ya no existe',
   INVALID_STATE: 'Acción no permitida en el estado actual',
   OFFLINE: 'Sin conexión con el servidor',
   TIMEOUT: 'El servidor no respondió',
