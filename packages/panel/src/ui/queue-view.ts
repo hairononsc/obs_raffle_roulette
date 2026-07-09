@@ -5,6 +5,11 @@ import { diffPrizeSelection, summarizeEligibility } from '../logic/prize-insight
 import type { PanelActions } from '../actions.js';
 import type { PanelState } from '../state/store.js';
 
+function displayIcon(icon: string): string {
+  // Theme keys (prize-*) are resolved by the widget's theme, not renderable here.
+  return icon.startsWith('prize-') ? '🎁' : icon;
+}
+
 interface PrizeDraft {
   included: boolean;
   approved: boolean;
@@ -168,7 +173,7 @@ export class QueueView {
 
       const row = el('label', { className: 'prize-adjust-row' }, [
         include,
-        el('span', { text: `${prize.icon} ${prize.name}` }),
+        el('span', { text: `${displayIcon(prize.icon)} ${prize.name}` }),
       ]);
 
       if (prize.conditions.requiresApproval) {

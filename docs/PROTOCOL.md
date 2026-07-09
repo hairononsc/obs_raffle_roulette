@@ -45,7 +45,7 @@ Permisos por rol:
 | `type`              | Emisor | Payload                                | Efecto                                                      |
 | ------------------- | ------ | -------------------------------------- | ----------------------------------------------------------- |
 | `hello`             | ambos  | `role`, `clientInfo?`                  | Registra el rol y suscribe. Respuesta: `state.sync`.        |
-| `queue.add`         | panel  | `buyerName`, `spins` (1–50), `note?`   | Crea entrada en cola. Broadcast: `queue.changed`.           |
+| `queue.add`         | panel  | `buyerName`, `spins` (1–50), `note?`, `phone?`, `purchaseAmount?`, `itemsCount?`, `profileId?`, `enabledPrizeIds?`, `disabledPrizeIds?`, `approvals?` | Crea entrada; el servidor evalúa la elegibilidad y persiste `eligiblePrizeIds`. Broadcast: `queue.changed`. |
 | `queue.remove`      | panel  | `entryId`                              | Elimina entrada. Broadcast: `queue.changed`.                |
 | `spin.launch`       | panel  | `entryId`                              | Lanza **un** giro de esa entrada. Ver ciclo de vida abajo.  |
 | `wheel.spin.landed` | widget | `spinId`                               | Confirma que la animación aterrizó en el segmento objetivo. |
@@ -62,6 +62,8 @@ Permisos por rol:
 | `chest.configure`   | panel  | `prize`, `keysTarget` (1–50)           | Configura premio/meta; nunca auto-abre. Broadcast: `chest.changed`. |
 | `offer.start`       | panel  | `title`, `description`, `durationMs`   | Activa oferta (rechaza si hay una activa). Broadcast: `offer.changed`. |
 | `offer.cancel`      | panel  | `{}`                                   | Cancela la oferta activa (no-op si no hay). Broadcast: `offer.changed`. |
+| `profile.save`      | panel  | `profile` (`id?` = crear/editar)       | Guarda un perfil de ruleta. Broadcast: `profiles.changed`.  |
+| `profile.delete`    | panel  | `profileId`                            | Elimina un perfil. Broadcast: `profiles.changed`.           |
 
 Con el cofre desbloqueado, `chest.key.add`/`chest.key.remove` responden
 `error INVALID_STATE`.
@@ -118,7 +120,7 @@ Garantías:
 
 ## Errores
 
-`INVALID_MESSAGE` · `FORBIDDEN` · `ENTRY_NOT_FOUND` ·
+`INVALID_MESSAGE` · `FORBIDDEN` · `ENTRY_NOT_FOUND` · `NO_ELIGIBLE_PRIZES` · `PROFILE_NOT_FOUND` ·
 `PRIZE_NOT_FOUND` · `SPIN_IN_PROGRESS` · `SPIN_NOT_ACTIVE` · `NO_STOCK_AVAILABLE` ·
 `NO_SPINS_REMAINING` · `INVALID_STATE` · `INTERNAL_ERROR`
 

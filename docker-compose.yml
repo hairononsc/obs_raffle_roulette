@@ -23,6 +23,8 @@ services:
       WHEELLIVE_DB_URL: postgres://wheellive:wheellive@db:5432/wheellive
       # Inside the container; isolation comes from the port mapping below.
       WHEELLIVE_HOST: 0.0.0.0
+      # Eligibility caps ("max 2/day") use natural local-calendar days.
+      TZ: America/Santo_Domingo
     ports:
       # Only reachable from this machine (OBS and the panel run here).
       # For LAN access (e.g. TikTok Live Studio on another PC), change

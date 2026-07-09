@@ -47,6 +47,16 @@ cada modo.
 - [ ] "Control audio via OBS" activado y el audio de la ruleta audible en la mezcla
 - [ ] "Shutdown source when not visible": **desactivado**
 
+**Ruleta inteligente** (pestaña Premios)
+
+- [ ] Condiciones de cada premio revisadas (botón 🎛: compra mínima, límites
+      por día/semana, autorización, etc.)
+- [ ] Costos actualizados y **Simulador de costo** revisado: el costo esperado
+      por giro y la proyección mensual deben cuadrar con tu margen
+- [ ] Perfiles de ruleta listos si segmentas por monto de compra
+- Al registrar una compra: monto y artículos alimentan las reglas; el chip
+  🎯 en la cola muestra cuántos premios puede ganar ese cliente
+
 **Contenido**
 
 - [ ] Premios cargados con inventario real (panel → Premios)
