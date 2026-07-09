@@ -21,7 +21,9 @@ export const PrizeSchema = z.object({
   weight: z.number().positive(),
   stock: z.number().int().min(0).nullable(),
   color: z.string().regex(HEX_COLOR_REGEX, 'must be a #RRGGBB hex color'),
-  icon: z.string().min(1),
+  /** Legacy display glyph. Empty by default: operators now put the emoji
+   *  directly in the prize name. */
+  icon: z.string().default(''),
   active: z.boolean(),
   /** Estimated cost in RD$ — informative only (feeds the cost simulator),
    *  never affects selection. */

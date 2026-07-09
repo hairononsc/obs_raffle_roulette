@@ -5,9 +5,11 @@ import { diffPrizeSelection, summarizeEligibility } from '../logic/prize-insight
 import type { PanelActions } from '../actions.js';
 import type { PanelState } from '../state/store.js';
 
-function displayIcon(icon: string): string {
-  // Theme keys (prize-*) are resolved by the widget's theme, not renderable here.
-  return icon.startsWith('prize-') ? '🎁' : icon;
+function prizeLabel(prize: { icon: string; name: string }): string {
+  // Theme keys (prize-*) are not renderable here; empty icons mean the
+  // emoji already lives in the name.
+  const icon = prize.icon.startsWith('prize-') ? '' : prize.icon;
+  return icon === '' ? prize.name : `${icon} ${prize.name}`;
 }
 
 interface PrizeDraft {
@@ -173,7 +175,7 @@ export class QueueView {
 
       const row = el('label', { className: 'prize-adjust-row' }, [
         include,
-        el('span', { text: `${displayIcon(prize.icon)} ${prize.name}` }),
+        el('span', { text: prizeLabel(prize) }),
       ]);
 
       if (prize.conditions.requiresApproval) {

@@ -14,11 +14,11 @@ import type { UnitOfWork } from '../../application/ports/repositories.js';
  */
 const SEED_PRIZES: readonly PrizeInput[] = [
   {
-    name: 'Jean GRATIS',
+    name: '👖 Jean GRATIS',
     weight: 0.5,
     stock: null,
     color: '#FFD700',
-    icon: '👖',
+    icon: '',
     active: true,
     cost: 355.7,
     // Compra mínima RD$750 · máximo 1 ganador por live. "Sujeto a
@@ -27,33 +27,33 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     respin: false,
   },
   {
-    name: 'Reembolso Parcial',
+    name: '💸 Reembolso Parcial',
     weight: 1,
     stock: null,
     color: '#00C853',
-    icon: '💸',
+    icon: '',
     active: true,
     cost: 300, // hasta RD$300, monto configurable al entregar
     conditions: { minPurchase: 700, maxPerDay: 2 },
     respin: false,
   },
   {
-    name: 'Regalo Sorpresa',
+    name: '🎁 Regalo Sorpresa',
     weight: 12,
     stock: null,
     color: '#9C27B0',
-    icon: '🎁',
+    icon: '',
     active: true,
     cost: 40, // costo máximo del detalle físico (RD$20–40)
     conditions: {},
     respin: false,
   },
   {
-    name: 'Vuelve a Girar',
+    name: '🔄 Vuelve a Girar',
     weight: 18,
     stock: null,
     color: '#2196F3',
-    icon: '🔄',
+    icon: '',
     active: true,
     cost: 0,
     conditions: {},
@@ -61,44 +61,44 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     respin: true,
   },
   {
-    name: 'Cliente VIP',
+    name: '⭐ Cliente VIP',
     weight: 10,
     stock: null,
     color: '#FF9800',
-    icon: '⭐',
+    icon: '',
     active: true,
     cost: 0, // acceso a promociones exclusivas y prioridad en próximos eventos
     conditions: {},
     respin: false,
   },
   {
-    name: 'Cupón Próxima Compra',
+    name: '🎟️ Cupón Próxima Compra',
     weight: 10,
     stock: null,
     color: '#CDDC39',
-    icon: '🎟️',
+    icon: '',
     active: true,
     cost: 0, // RD$0 inmediato; monto configurable (RD$100, RD$150, %) al redimir
     conditions: {},
     respin: false,
   },
   {
-    name: 'Accesorio Sorpresa',
+    name: '🌸 Accesorio Sorpresa',
     weight: 10,
     stock: null,
     color: '#EC407A',
-    icon: '🌸',
+    icon: '',
     active: true,
     cost: 40, // RD$20–40
     conditions: {},
     respin: false,
   },
   {
-    name: 'Oferta Exclusiva',
+    name: '⚡ Oferta Exclusiva',
     weight: 8,
     stock: null,
     color: '#F44336',
-    icon: '⚡',
+    icon: '',
     active: true,
     cost: 0, // variable; la define el operador en la campaña
     // Solo aparece cuando hay una oferta relámpago / campaña activa.
@@ -106,22 +106,22 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     respin: false,
   },
   {
-    name: 'Doble Participación',
+    name: '🎀 Doble Participación',
     weight: 8,
     stock: null,
     color: '#00BCD4',
-    icon: '🎀',
+    icon: '',
     active: true,
     cost: 0, // válida para el próximo evento de ruleta, no el live actual
     conditions: {},
     respin: false,
   },
   {
-    name: 'Gracias por apoyar',
+    name: '🤍 Gracias por apoyar',
     weight: 22.5,
     stock: null,
     color: '#9E9E9E',
-    icon: '🤍',
+    icon: '',
     active: true,
     cost: 0, // premio neutro: equilibra la probabilidad total al 100%
     conditions: {},

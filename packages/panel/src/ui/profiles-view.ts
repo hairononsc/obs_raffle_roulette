@@ -73,9 +73,9 @@ export class ProfilesView {
   }
 }
 
-function displayIcon(icon: string): string {
-  // Theme keys (prize-*) are resolved by the widget's theme, not renderable here.
-  return icon.startsWith('prize-') ? '🎁' : icon;
+function prizeLabel(prize: { icon: string; name: string }): string {
+  const icon = prize.icon.startsWith('prize-') ? '' : prize.icon;
+  return icon === '' ? prize.name : `${icon} ${prize.name}`;
 }
 
 interface ProfileDraft {
@@ -147,7 +147,7 @@ class ProfileDialog {
       this.rows.append(
         el('label', { className: `profile-prize-row${prize.active ? '' : ' row-inactive'}` }, [
           include,
-          el('span', { text: `${displayIcon(prize.icon)} ${prize.name}${prize.active ? '' : ' (inactivo)'}` }),
+          el('span', { text: `${prizeLabel(prize)}${prize.active ? '' : ' (inactivo)'}` }),
           weight,
         ]),
       );

@@ -154,7 +154,6 @@ class PrizeDialog {
     attrs: { type: 'number', min: '0', step: '50', placeholder: '0' },
   });
   private readonly color = el('input', { attrs: { type: 'color', value: '#e63946' } });
-  private readonly icon = el('input', { attrs: { value: 'prize-jeans', maxlength: '40' } });
   private readonly active = el('input', { attrs: { type: 'checkbox', checked: 'true' } });
   private readonly respin = el('input', { attrs: { type: 'checkbox' } });
   private readonly whatIf = el('p', { className: 'muted whatif-line' });
@@ -174,7 +173,6 @@ class PrizeDialog {
       field('Inventario', this.stock),
       field('Costo estimado (RD$)', this.cost),
       field('Color', this.color),
-      field('Icono (emoji o clave del tema)', this.icon),
       el('label', { className: 'field-check' }, [this.active, 'Activo (visible en la ruleta)']),
       el('label', { className: 'field-check' }, [
         this.respin,
@@ -209,7 +207,6 @@ class PrizeDialog {
     this.stock.value = prize?.stock == null ? '' : String(prize.stock);
     this.cost.value = prize ? String(prize.cost) : '';
     this.color.value = prize?.color ?? '#e63946';
-    this.icon.value = prize?.icon ?? 'prize-jeans';
     this.active.checked = prize?.active ?? true;
     this.respin.checked = prize?.respin ?? false;
     this.renderWhatIf();
@@ -248,7 +245,9 @@ class PrizeDialog {
       weight,
       stock: stockRaw === '' ? null : Math.max(0, Number.parseInt(stockRaw, 10)),
       color: this.color.value,
-      icon: this.icon.value.trim() === '' ? 'prize-generic' : this.icon.value.trim(),
+      // Legacy field kept as-is when editing; new prizes carry no icon
+      // (the emoji lives in the name now).
+      icon: this.editing?.icon ?? '',
       active: this.active.checked,
       cost: Number.isFinite(costRaw) && costRaw >= 0 ? costRaw : 0,
       conditions: this.editing?.conditions ?? {},

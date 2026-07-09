@@ -13,7 +13,8 @@ export const WheelSegmentSchema = z.object({
   prizeId: z.string().min(1),
   label: z.string().min(1).max(60),
   color: z.string().min(1),
-  icon: z.string().min(1),
+  /** May be empty: the emoji now usually lives in the label. */
+  icon: z.string(),
 });
 
 export type WheelSegment = z.infer<typeof WheelSegmentSchema>;

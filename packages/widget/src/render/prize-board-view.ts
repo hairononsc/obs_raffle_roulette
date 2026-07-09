@@ -99,8 +99,9 @@ export class PrizeBoardView {
       dot.circle(-hw + 44, y, 10).fill(prize.color);
       this.rows.addChild(dot);
 
+      const glyph = prize.icon === '' ? '' : resolveIcon(this.theme, prize.icon);
       const name = new Text({
-        text: `${resolveIcon(this.theme, prize.icon)} ${prize.name}`,
+        text: glyph === '' ? prize.name : `${glyph} ${prize.name}`,
         style: {
           fontFamily: 'Arial, sans-serif',
           fontWeight: '700',
