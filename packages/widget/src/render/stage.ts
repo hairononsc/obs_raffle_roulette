@@ -82,7 +82,7 @@ export class WidgetStage {
 
     if (this.show.has('prizes')) {
       // Designed as a dedicated source; alongside other modules it docks
-      // to the left edge at a smaller scale.
+      // to the RIGHT edge (the chest owns the bottom-left corner).
       const boardH = Math.max(this.prizeBoard.designHeight, 400);
       if (!wheelVisible && !chestVisible && !offerVisible) {
         this.prizeBoard.container.scale.set(Math.min(width / 1020, height / (boardH + 60)));
@@ -90,7 +90,8 @@ export class WidgetStage {
       } else {
         const scale = Math.min(width / 2600, height / (boardH + 200));
         this.prizeBoard.container.scale.set(scale);
-        this.prizeBoard.container.position.set(width * 0.17, height / 2);
+        // Anchored to the right edge with a margin, never clipped.
+        this.prizeBoard.container.position.set(width - 480 * scale - 24, height / 2);
       }
     }
 

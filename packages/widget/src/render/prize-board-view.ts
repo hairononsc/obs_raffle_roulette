@@ -2,7 +2,7 @@ import { Container, Graphics, Text } from 'pixi.js';
 
 import type { Prize } from '@wheellive/shared';
 
-import { boardProbability, publicRules } from '../prizes/board-info.js';
+import { availableToday, publicRules } from '../prizes/board-info.js';
 import type { WidgetTheme } from '../theme/theme.js';
 import { CASINO_THEME, resolveIcon } from '../theme/theme.js';
 
@@ -14,9 +14,10 @@ const FOOTER_H = 34;
 const MAX_ROWS = 12;
 
 /**
- * Public prize board for the audience: every active prize with its win %
- * and customer-facing rules, live-updated from prizes.changed. Sold-out
- * prizes stay listed but dimmed as "agotado".
+ * Public prize board for the audience: every active prize with its
+ * customer-facing rules (no probabilities — the operator keeps those in
+ * the panel), live-updated from prizes.changed. Sold-out prizes stay
+ * listed but dimmed as "agotado".
  */
 export class PrizeBoardView {
   readonly container = new Container();
@@ -64,7 +65,10 @@ export class PrizeBoardView {
   }
 
   private rebuild(): void {
-    const visible = this.prizes.filter((prize) => prize.active).slice(0, MAX_ROWS);
+    const today = new Date().getDay();
+    const visible = this.prizes
+      .filter((prize) => prize.active && availableToday(prize.conditions, today))
+      .slice(0, MAX_ROWS);
     const height = HEADER_H + visible.length * ROW_H + FOOTER_H;
     this.designHeight = height;
     const top = -height / 2;
@@ -90,7 +94,6 @@ export class PrizeBoardView {
     visible.forEach((prize, index) => {
       const y = top + HEADER_H + index * ROW_H + ROW_H / 2;
       const soldOut = prize.stock === 0;
-      const probability = boardProbability(prize, this.prizes);
 
       const dot = new Graphics();
       dot.circle(-hw + 44, y, 10).fill(prize.color);
@@ -109,19 +112,6 @@ export class PrizeBoardView {
       name.position.set(-hw + 70, y);
       this.rows.addChild(name);
 
-      const probabilityText = new Text({
-        text: probability === null ? '—' : `${probability.toFixed(1)}%`,
-        style: {
-          fontFamily: 'Arial, sans-serif',
-          fontWeight: '900',
-          fontSize: 28,
-          fill: this.theme.offer.headerColor,
-        },
-      });
-      probabilityText.anchor.set(1, 0.5);
-      probabilityText.position.set(hw - 380, y);
-      this.rows.addChild(probabilityText);
-
       const rules = new Text({
         text: soldOut ? 'agotado por hoy' : publicRules(prize.conditions),
         style: {
@@ -131,7 +121,7 @@ export class PrizeBoardView {
           fill: this.theme.offer.textColor,
           align: 'right',
           wordWrap: true,
-          wordWrapWidth: 330,
+          wordWrapWidth: 460,
         },
       });
       rules.anchor.set(1, 0.5);
@@ -139,7 +129,7 @@ export class PrizeBoardView {
       this.rows.addChild(rules);
 
       if (soldOut) {
-        for (const node of [dot, name, probabilityText, rules]) {
+        for (const node of [dot, name, rules]) {
           node.alpha = 0.35;
         }
       }

@@ -1,14 +1,12 @@
-import type { Prize, PrizeConditions } from '@wheellive/shared';
+import type { PrizeConditions } from '@wheellive/shared';
 
 /**
- * Pure helpers for the public prize board: customer-facing rule text and
- * win probabilities. Kept DOM/Pixi-free for unit testing.
+ * Pure helpers for the public prize board: customer-facing rule text.
+ * Kept DOM/Pixi-free for unit testing.
  *
  * Internal-only conditions (requiresApproval) are deliberately omitted —
  * the audience never sees operator mechanics.
  */
-
-const DAY_LETTERS = ['D', 'L', 'M', 'X', 'J', 'V', 'S'];
 
 const money = new Intl.NumberFormat('es-DO', { maximumFractionDigits: 0 });
 
@@ -22,7 +20,15 @@ function hourLabel(hour: number): string {
   return hour === 12 ? '12pm' : `${String(hour - 12)}pm`;
 }
 
-/** Customer-facing rules for one prize; '¡todos participan!' when open. */
+/** True when the prize's day-of-week schedule includes today — the board
+ *  only lists what can actually be won today. */
+export function availableToday(conditions: PrizeConditions, dayOfWeek: number): boolean {
+  return conditions.daysOfWeek === undefined || conditions.daysOfWeek.includes(dayOfWeek);
+}
+
+/** Customer-facing rules for one prize; '¡todos participan!' when open.
+ *  Day-of-week rules are not rendered: day-gated prizes simply do not
+ *  appear on days they don't apply. */
 export function publicRules(conditions: PrizeConditions): string {
   const parts: string[] = [];
   if (conditions.minPurchase !== undefined) {
@@ -33,9 +39,6 @@ export function publicRules(conditions: PrizeConditions): string {
   }
   if (conditions.minItems !== undefined) {
     parts.push(`${String(conditions.minItems)}+ artículos`);
-  }
-  if (conditions.daysOfWeek !== undefined) {
-    parts.push(`solo ${conditions.daysOfWeek.map((day) => DAY_LETTERS[day] ?? '?').join('·')}`);
   }
   if (conditions.hourStart !== undefined || conditions.hourEnd !== undefined) {
     parts.push(`de ${hourLabel(conditions.hourStart ?? 0)} a ${hourLabel(conditions.hourEnd ?? 23)}`);
@@ -63,14 +66,3 @@ export function publicRules(conditions: PrizeConditions): string {
   return parts.length === 0 ? '¡todos participan!' : parts.join(' · ');
 }
 
-/** Win % among winnable prizes (active + stock); null when not winnable. */
-export function boardProbability(prize: Prize, prizes: readonly Prize[]): number | null {
-  const winnable = prizes.filter(
-    (candidate) => candidate.active && (candidate.stock === null || candidate.stock > 0),
-  );
-  if (!winnable.some((candidate) => candidate.id === prize.id)) {
-    return null;
-  }
-  const total = winnable.reduce((sum, candidate) => sum + candidate.weight, 0);
-  return total === 0 ? null : (prize.weight / total) * 100;
-}
