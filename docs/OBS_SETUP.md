@@ -9,6 +9,25 @@
 3. Tamaño recomendado: **800 × 900** (la ruleta escala sola a cualquier tamaño).
 4. El fondo es transparente: la ruleta se compone sobre tu stream.
 
+## Si la app exige un hostname DNS (TikTok Live Studio)
+
+Algunas apps rechazan `localhost` o IPs y exigen un nombre de dominio.
+`sslip.io` es un DNS público que convierte cualquier IP en hostname —
+sin túneles, sin exponer nada a internet:
+
+| Escenario | URL |
+| --- | --- |
+| Live Studio en la MISMA máquina que Docker | `http://127-0-0-1.sslip.io:8710/widget/` |
+| Live Studio en OTRA PC de tu red (ej. la máquina es 192.168.1.34) | `http://192-168-1-34.sslip.io:8710/widget/` |
+
+Para el segundo caso, en `docker-compose.yml` cambia el mapeo de puertos
+de `'127.0.0.1:8710:8710'` a `'8710:8710'` (queda accesible para toda tu
+red local) y usa la IP real de la máquina (`ipconfig getifaddr en0`).
+
+Requiere internet para resolver el DNS (el tráfico igual nunca sale de tu
+red). Si la app además exige **https**, se necesita un túnel (Cloudflare
+Tunnel) — en ese caso hay que proteger el panel primero.
+
 ## Módulos y `?show=` (ruleta, cofre, oferta)
 
 El widget incluye tres módulos: la **ruleta**, el **Cofre del Live** y la
