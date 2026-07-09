@@ -22,7 +22,8 @@ export class TabBar {
 
   constructor(tabs: readonly TabDef[]) {
     const stored = localStorage.getItem(STORAGE_KEY);
-    this.activeId = tabs.some((tab) => tab.id === stored) ? (stored as string) : (tabs[0]?.id ?? '');
+    this.activeId =
+      stored !== null && tabs.some((tab) => tab.id === stored) ? stored : (tabs[0]?.id ?? '');
 
     for (const tab of tabs) {
       const badge = el('span', { className: 'tab-badge hidden' });

@@ -63,10 +63,20 @@ cada modo.
 - [ ] Prueba completa: agregar llaves hasta el total → ver la apertura con
       confeti en OBS → Reiniciar
 
-**Oferta Relámpago** (panel → Oferta Relámpago)
+**Oferta Relámpago** (panel → pestaña Oferta)
 
 - [ ] Prueba: activar una oferta de 1 minuto → ver la tarjeta con countdown
       en OBS → Cancelar
+
+**Programa de Ofertas** (panel → pestaña Oferta)
+
+- [ ] Pool con 2+ ofertas guardadas (título, descripción, duración)
+- [ ] Al empezar el live: Iniciar programa con la duración real del live y
+      la cantidad de ofertas — el panel muestra "próxima ≈ HH:MM"
+- Reglas: primera oferta ≥10 min tras iniciar, separación ≥20 min, la
+  última termina antes del fin del live. Si lanzas una oferta manual y el
+  programa dispara en ese momento, ese disparo se salta (no se enciman).
+- [ ] Al terminar el live: si sobró programa, Detener
 
 **Recuperación (por si algo falla en vivo)**
 
