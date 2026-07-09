@@ -36,6 +36,9 @@ function backEaseOut(t: number): number {
 export class FlashOfferView {
   readonly container = new Container();
 
+  /** Animation target: the stage owns `container` (layout scale/position),
+   *  enter/exit animations scale this inner content instead. */
+  private readonly content = new Container();
   private readonly card = new Graphics();
   private readonly header: Text;
   private readonly title: Text;
@@ -107,7 +110,8 @@ export class FlashOfferView {
     this.timer.anchor.set(0.5);
     this.timer.position.set(0, 120);
 
-    this.container.addChild(this.card, this.header, this.title, this.description, this.timer);
+    this.content.addChild(this.card, this.header, this.title, this.description, this.timer);
+    this.container.addChild(this.content);
     this.container.visible = false;
     this.draw();
   }
@@ -133,12 +137,12 @@ export class FlashOfferView {
     this.container.visible = true;
     if (options.animate) {
       this.anim = { kind: 'entering', t: 0 };
-      this.container.alpha = 0;
-      this.container.scale.set(0.3);
+      this.content.alpha = 0;
+      this.content.scale.set(0.3);
     } else {
       this.anim = { kind: 'active' };
-      this.container.alpha = 1;
-      this.container.scale.set(1);
+      this.content.alpha = 1;
+      this.content.scale.set(1);
     }
   }
 
@@ -162,10 +166,10 @@ export class FlashOfferView {
       case 'entering': {
         this.anim.t += dtMs;
         const progress = Math.min(1, this.anim.t / ENTER_MS);
-        this.container.alpha = progress;
-        this.container.scale.set(0.3 + 0.7 * backEaseOut(progress));
+        this.content.alpha = progress;
+        this.content.scale.set(0.3 + 0.7 * backEaseOut(progress));
         if (progress >= 1) {
-          this.container.scale.set(1);
+          this.content.scale.set(1);
           this.anim = { kind: 'active' };
         }
         this.updateTimer(timeMs);
@@ -179,12 +183,12 @@ export class FlashOfferView {
       case 'exiting': {
         this.anim.t += dtMs;
         const progress = Math.min(1, this.anim.t / EXIT_MS);
-        this.container.alpha = 1 - progress;
-        this.container.scale.set(1 + 0.15 * progress);
+        this.content.alpha = 1 - progress;
+        this.content.scale.set(1 + 0.15 * progress);
         if (progress >= 1) {
           this.anim = { kind: 'hidden' };
           this.container.visible = false;
-          this.container.scale.set(1);
+          this.content.scale.set(1);
           this.offer = null;
         }
         return;

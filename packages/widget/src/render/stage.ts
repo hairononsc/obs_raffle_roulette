@@ -85,8 +85,9 @@ export class WidgetStage {
 
     if (chestVisible) {
       if (!wheelVisible && !offerVisible) {
-        // Dedicated chest source: centred and large (~design 480x560).
-        this.chest.container.scale.set(Math.min(width / 480, height / 560));
+        // Dedicated chest source: sized so the unlock message (~720 design
+        // px wide) also fits, not just the chest body.
+        this.chest.container.scale.set(Math.min(width / 720, height / 620));
         this.chest.container.position.set(width / 2, height / 2);
       } else if (!wheelVisible) {
         // chest + offer stacked.

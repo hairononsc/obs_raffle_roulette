@@ -11,7 +11,9 @@ const BODY_W = 340;
 const BODY_H = 180;
 const BODY_TOP = -BODY_H / 2 + 30; // shifted down to leave room for the lid
 const LID_H = 70;
-const LID_OPEN_ROTATION = -1.1;
+/** Open pose: the lid flips backwards over its hinge line; negative
+ * scale.y shows its inner face raised behind the body (2.5D trick). */
+const LID_OPEN_SCALE = -0.55;
 
 type Anim =
   | { kind: 'static' }
@@ -96,7 +98,7 @@ export class ChestView {
       style: {
         fontFamily: 'Arial, sans-serif',
         fontWeight: '900',
-        fontSize: 52,
+        fontSize: 42,
         fill: '#f5c542',
         align: 'center',
         stroke: { color: '#000000', width: 7 },
@@ -150,6 +152,7 @@ export class ChestView {
   playKeyGained(state: ChestState): void {
     this.state = state;
     this.anim = { kind: 'keyFlying', t: 0 };
+    this.flyingKey.visible = false;
     this.applyPose();
   }
 
@@ -157,8 +160,9 @@ export class ChestView {
   playUnlockSequence(state: ChestState): void {
     this.state = state;
     this.anim = { kind: 'shaking', t: 0 };
+    this.flyingKey.visible = false;
     // Visual pose stays "closed" until the opening step flips it.
-    this.lid.rotation = 0;
+    this.lid.scale.y = 1;
     this.lightBeam.alpha = 0;
     this.updateTexts();
   }
@@ -209,7 +213,7 @@ export class ChestView {
         this.anim.t += dtMs;
         const progress = Math.min(1, this.anim.t / OPEN_MS);
         const eased = easeOutCubic(progress);
-        this.lid.rotation = LID_OPEN_ROTATION * eased;
+        this.lid.scale.y = 1 - (1 - LID_OPEN_SCALE) * eased;
         this.lightBeam.alpha = 0.85 * eased;
         if (!this.anim.confettiFired && progress >= 0.4) {
           this.anim.confettiFired = true;
@@ -237,7 +241,7 @@ export class ChestView {
   /** Renders the final pose for the current state (no transition). */
   private applyPose(): void {
     const unlocked = this.state.status === 'unlocked';
-    this.lid.rotation = unlocked ? LID_OPEN_ROTATION : 0;
+    this.lid.scale.y = unlocked ? LID_OPEN_SCALE : 1;
     this.lightBeam.alpha = unlocked ? 0.85 : 0;
     this.chestGroup.position.set(0, 0);
     this.updateTexts();
