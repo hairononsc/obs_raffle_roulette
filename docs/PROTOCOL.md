@@ -54,6 +54,17 @@ Permisos por rol:
 | `prize.delete`      | panel  | `prizeId`                              | Broadcast: `prizes.changed`.                                |
 | `settings.update`   | panel  | `settings` (objeto completo, no patch) | Broadcast: `settings.changed`.                              |
 | `theme.set`         | panel  | `themeId`                              | Broadcast: `theme.changed`.                                 |
+| `chest.key.add`     | panel  | `{}`                                   | +1 llave (clamp al total; al llegar, desbloquea). Broadcast: `chest.changed`. |
+| `chest.key.remove`  | panel  | `{}`                                   | −1 llave (clamp en 0). Broadcast: `chest.changed`.          |
+| `chest.open`        | panel  | `{}`                                   | Abre manualmente (idempotente). Broadcast: `chest.changed`. |
+| `chest.close`       | panel  | `{}`                                   | Cierra conservando llaves. Broadcast: `chest.changed`.      |
+| `chest.reset`       | panel  | `{}`                                   | Llaves a 0 y cerrado. Broadcast: `chest.changed`.           |
+| `chest.configure`   | panel  | `prize`, `keysTarget` (1–50)           | Configura premio/meta; nunca auto-abre. Broadcast: `chest.changed`. |
+| `offer.start`       | panel  | `title`, `description`, `durationMs`   | Activa oferta (rechaza si hay una activa). Broadcast: `offer.changed`. |
+| `offer.cancel`      | panel  | `{}`                                   | Cancela la oferta activa (no-op si no hay). Broadcast: `offer.changed`. |
+
+Con el cofre desbloqueado, `chest.key.add`/`chest.key.remove` responden
+`error INVALID_STATE`.
 
 Todo comando del panel recibe exactamente una respuesta directa: `ack` (con su
 `requestId`) o `error`. Los broadcasts llegan además a todos los clientes conectados,
@@ -63,7 +74,7 @@ incluido el emisor.
 
 | `type`             | Alcance   | Payload                                                                                           |
 | ------------------ | --------- | ------------------------------------------------------------------------------------------------- |
-| `state.sync`       | directo   | Snapshot completo: `settings`, `themeId`, `prizes`, `segments`, `queue`, `activeSpin` (o `null`). |
+| `state.sync`       | directo   | Snapshot completo: `settings`, `themeId`, `prizes`, `segments`, `queue`, `activeSpin` (o `null`), `chest`, `flashOffer` (o `null`). |
 | `ack`              | directo   | `{}` — éxito del comando referido por `requestId`.                                                |
 | `error`            | directo   | `code`, `message`. Con `requestId` si respondía a un comando.                                     |
 | `queue.changed`    | broadcast | Cola completa actualizada.                                                                        |
@@ -72,6 +83,8 @@ incluido el emisor.
 | `prizes.changed`   | broadcast | Lista de premios + layout de segmentos derivado.                                                  |
 | `settings.changed` | broadcast | Settings vigentes.                                                                                |
 | `theme.changed`    | broadcast | `themeId` activo.                                                                                 |
+| `chest.changed`    | broadcast | `chest` (estado completo) + `cause` (`keyAdded`/`keyRemoved`/`opened`/`closed`/`reset`/`configured`) — la causa decide la animación del widget. |
+| `offer.changed`    | broadcast | `offer` (completo al iniciar, `null` al terminar) + `cause` (`started`/`cancelled`/`expired`). El countdown lo calcula cada cliente desde `endsAt`. |
 
 **Regla de reconstrucción**: cualquier cliente debe poder reconstruir toda su UI
 solo con `state.sync`. Esto hace recuperable una recarga del Browser Source de OBS

@@ -67,7 +67,9 @@ export async function createPostgresDatabase(url: string): Promise<Kysely<Databa
     }
   }
   if (lastError !== null) {
-    throw lastError;
+    throw lastError instanceof Error
+      ? lastError
+      : new Error('postgres connection failed', { cause: lastError });
   }
 
   await migratePostgres(pool);

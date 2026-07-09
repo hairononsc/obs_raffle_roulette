@@ -5,8 +5,29 @@
 1. Agrega una fuente **Browser** a tu escena.
 2. URL (desarrollo): `http://localhost:5173/`
    URL (producción, cuando el backend sirva el build): `http://localhost:8710/widget/`
+   (la URL es la misma con Docker o sin Docker)
 3. Tamaño recomendado: **800 × 900** (la ruleta escala sola a cualquier tamaño).
 4. El fondo es transparente: la ruleta se compone sobre tu stream.
+
+## Módulos y `?show=` (ruleta, cofre, oferta)
+
+El widget incluye tres módulos: la **ruleta**, el **Cofre del Live** y la
+**Oferta Relámpago**. El parámetro `?show=` elige cuáles renderiza cada
+fuente:
+
+| URL                                            | Muestra                            |
+| ---------------------------------------------- | ---------------------------------- |
+| `http://localhost:8710/widget/`                | Los tres (layout combinado)        |
+| `http://localhost:8710/widget/?show=wheel`     | Solo la ruleta                     |
+| `http://localhost:8710/widget/?show=chest`     | Solo el cofre (grande y centrado)  |
+| `http://localhost:8710/widget/?show=offer`     | Solo la oferta (grande y centrada) |
+| `?show=wheel,chest` / `?show=chest,offer` etc. | Cualquier combinación              |
+
+**Recomendado**: una fuente por módulo (`?show=wheel`, `?show=chest`,
+`?show=offer`) para moverlos y ocultarlos por separado en OBS con el ojito.
+Tamaños sugeridos: cofre **500 × 620**, oferta **900 × 560**. La oferta no
+dibuja nada hasta que la actives desde el panel — la fuente puede quedarse
+visible siempre.
 
 ## Ajustes críticos (no opcionales)
 

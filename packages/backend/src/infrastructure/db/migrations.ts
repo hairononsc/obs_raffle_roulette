@@ -152,7 +152,8 @@ export async function migratePostgres(pool: pg.Pool): Promise<void> {
   try {
     await client.query(CREATE_TRACKING_TABLE);
     const result = await client.query<{ version: number }>('SELECT version FROM schema_migrations');
-    const appliedMax = result.rows.reduce((max, row) => Math.max(max, Number(row.version)), 0);
+    // version is INTEGER (int4): the pg driver already returns a number.
+    const appliedMax = result.rows.reduce((max, row) => Math.max(max, row.version), 0);
 
     for (let index = appliedMax; index < MIGRATIONS.length; index += 1) {
       const statements = MIGRATIONS[index]?.postgres;
