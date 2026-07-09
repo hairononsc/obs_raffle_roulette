@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { OfferService } from '../src/application/services/offer-service.js';
-import { createDatabase } from '../src/infrastructure/db/database.js';
+import { createSqliteDatabase } from '../src/infrastructure/db/database.js';
 import { KyselyUnitOfWork } from '../src/infrastructure/db/unit-of-work.js';
 import { FixedClock, ManualScheduler, RecordingEventBus } from './helpers.js';
 
@@ -16,7 +16,7 @@ interface Context {
 }
 
 function createContext(): Context {
-  const uow = new KyselyUnitOfWork(createDatabase(':memory:'));
+  const uow = new KyselyUnitOfWork(createSqliteDatabase(':memory:'));
   const events = new RecordingEventBus();
   const scheduler = new ManualScheduler();
   const clock = new FixedClock();

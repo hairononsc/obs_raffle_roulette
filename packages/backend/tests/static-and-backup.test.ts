@@ -21,6 +21,7 @@ describe('static serving', () => {
     const config: AppConfig = {
       host: '127.0.0.1',
       port: 0,
+      dbUrl: null,
       dbPath: ':memory:',
       timing: { landingGraceMs: 1000, celebrationMs: 50 },
       static: { widgetDist, panelDist },

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DEFAULT_CHEST_STATE } from '../src/domain/defaults.js';
 import { ChestService } from '../src/application/services/chest-service.js';
-import { createDatabase } from '../src/infrastructure/db/database.js';
+import { createSqliteDatabase } from '../src/infrastructure/db/database.js';
 import { KyselyUnitOfWork } from '../src/infrastructure/db/unit-of-work.js';
 import { RecordingEventBus } from './helpers.js';
 
@@ -13,7 +13,7 @@ interface Context {
 }
 
 function createContext(): Context {
-  const uow = new KyselyUnitOfWork(createDatabase(':memory:'));
+  const uow = new KyselyUnitOfWork(createSqliteDatabase(':memory:'));
   const events = new RecordingEventBus();
   return { uow, events, service: new ChestService(uow, events) };
 }

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { DomainError } from '../src/domain/errors.js';
 import { SpinService } from '../src/application/services/spin-service.js';
-import { createDatabase } from '../src/infrastructure/db/database.js';
+import { createSqliteDatabase } from '../src/infrastructure/db/database.js';
 import { KyselyUnitOfWork } from '../src/infrastructure/db/unit-of-work.js';
 import {
   FixedClock,
@@ -26,7 +26,7 @@ interface Context {
 }
 
 function createContext(rolls: number[] = []): Context {
-  const db = createDatabase(':memory:');
+  const db = createSqliteDatabase(':memory:');
   const uow = new KyselyUnitOfWork(db);
   const events = new RecordingEventBus();
   const scheduler = new ManualScheduler();

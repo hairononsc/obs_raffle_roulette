@@ -52,12 +52,16 @@ export interface WheelLiveApp {
  * replaceable without touching domain or application code.
  */
 export async function createApp(config: AppConfig): Promise<WheelLiveApp> {
-  const backupPath = backupDatabase(config.dbPath);
-  if (backupPath !== null) {
-    console.log(`[wheellive] database backed up to ${backupPath}`);
+  // File backup only applies to the embedded SQLite; the Postgres volume
+  // has its own durability, with `pnpm docker:backup` for manual dumps.
+  if (config.dbUrl === null) {
+    const backupPath = backupDatabase(config.dbPath);
+    if (backupPath !== null) {
+      console.log(`[wheellive] database backed up to ${backupPath}`);
+    }
   }
 
-  const db = createDatabase(config.dbPath);
+  const db = await createDatabase({ dbUrl: config.dbUrl, dbPath: config.dbPath });
   const uow = new KyselyUnitOfWork(db);
   const events = new SimpleEventBus();
 

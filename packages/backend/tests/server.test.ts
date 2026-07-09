@@ -13,6 +13,7 @@ import { createApp, type WheelLiveApp } from '../src/container.js';
 const TEST_CONFIG: AppConfig = {
   host: '127.0.0.1',
   port: 0,
+  dbUrl: null,
   dbPath: ':memory:',
   timing: { landingGraceMs: 30_000, celebrationMs: 50 },
   static: { widgetDist: null, panelDist: null },
