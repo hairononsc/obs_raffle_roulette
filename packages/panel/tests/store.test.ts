@@ -15,6 +15,8 @@ const SYNC_PAYLOAD: StateSyncMessage['payload'] = {
   activeSpin: null,
   chest: { keys: 2, keysTarget: 5, prize: '👖 Jean Gratis', status: 'locked' },
   flashOffer: null,
+  offerPool: [{ id: 'tpl-1', title: '2x1', description: '', durationMs: 600_000 }],
+  offerProgram: null,
 };
 
 function sync(): ServerMessage {
@@ -57,6 +59,23 @@ describe('PanelStore', () => {
 
     store.apply(createMessage('offer.changed', { offer: null, cause: 'expired' }));
     expect(store.state.flashOffer).toBeNull();
+  });
+
+  it('applies offer pool and program broadcasts', () => {
+    const store = new PanelStore();
+    store.apply(sync());
+    expect(store.state.offerPool).toHaveLength(1);
+    expect(store.state.offerProgram).toBeNull();
+
+    store.apply(createMessage('offer.pool.changed', { pool: [] }));
+    expect(store.state.offerPool).toHaveLength(0);
+
+    const program = { startedAt: 0, endsAt: 10_800_000, fireAt: [600_000, 4_000_000], totalCount: 3 };
+    store.apply(createMessage('offer.program.changed', { program, cause: 'started' }));
+    expect(store.state.offerProgram?.fireAt).toHaveLength(2);
+
+    store.apply(createMessage('offer.program.changed', { program: null, cause: 'finished' }));
+    expect(store.state.offerProgram).toBeNull();
   });
 
   it('tracks the active spin through its lifecycle', () => {

@@ -6,7 +6,12 @@ import type {
   ChestOpenMessage,
   ChestResetMessage,
   OfferCancelMessage,
+  OfferPoolAddMessage,
+  OfferPoolRemoveMessage,
+  OfferProgramStartMessage,
+  OfferProgramStopMessage,
   OfferStartMessage,
+  OfferTemplateInput,
   PrizeCreateMessage,
   PrizeDeleteMessage,
   PrizeInput,
@@ -128,6 +133,38 @@ export class PanelActions {
     await this.exec(
       () => this.socket.request<OfferCancelMessage>('offer.cancel', {}),
       'Oferta cancelada',
+    );
+  }
+
+  async addOfferTemplate(template: OfferTemplateInput): Promise<void> {
+    await this.exec(
+      () => this.socket.request<OfferPoolAddMessage>('offer.pool.add', { template }),
+      'Oferta guardada en el pool',
+    );
+  }
+
+  async removeOfferTemplate(templateId: string): Promise<void> {
+    await this.exec(
+      () => this.socket.request<OfferPoolRemoveMessage>('offer.pool.remove', { templateId }),
+      'Oferta eliminada del pool',
+    );
+  }
+
+  async startOfferProgram(liveDurationMs: number, offerCount: number): Promise<void> {
+    await this.exec(
+      () =>
+        this.socket.request<OfferProgramStartMessage>('offer.program.start', {
+          liveDurationMs,
+          offerCount,
+        }),
+      'Programa de ofertas iniciado',
+    );
+  }
+
+  async stopOfferProgram(): Promise<void> {
+    await this.exec(
+      () => this.socket.request<OfferProgramStopMessage>('offer.program.stop', {}),
+      'Programa detenido',
     );
   }
 

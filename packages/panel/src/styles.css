@@ -556,3 +556,34 @@ input[type='range'] {
   grid-template-columns: minmax(0, 720px);
   justify-content: center;
 }
+
+/* --- Programa de Ofertas --- */
+
+.pool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.pool-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0b1220;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--card-border);
+  margin: 16px 0;
+}
+
+.program-status {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}

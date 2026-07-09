@@ -2,6 +2,8 @@ import type {
   ActiveSpin,
   ChestState,
   FlashOffer,
+  OfferProgramState,
+  OfferTemplate,
   Prize,
   QueueEntry,
   ServerMessage,
@@ -21,6 +23,8 @@ export interface PanelState {
   lastResult: SpinCompletedMessage['payload'] | null;
   chest: ChestState | null;
   flashOffer: FlashOffer | null;
+  offerPool: OfferTemplate[];
+  offerProgram: OfferProgramState | null;
 }
 
 type Listener = (state: PanelState) => void;
@@ -43,6 +47,8 @@ export class PanelStore {
     lastResult: null,
     chest: null,
     flashOffer: null,
+    offerPool: [],
+    offerProgram: null,
   };
 
   subscribe(listener: Listener): () => void {
@@ -60,14 +66,16 @@ export class PanelStore {
   apply(message: ServerMessage): void {
     switch (message.type) {
       case 'state.sync': {
-        const { queue, prizes, settings, themeId, activeSpin, chest, flashOffer } = message.payload;
-        this.state.queue = queue;
-        this.state.prizes = prizes;
-        this.state.settings = settings;
-        this.state.themeId = themeId;
-        this.state.activeSpin = activeSpin;
-        this.state.chest = chest;
-        this.state.flashOffer = flashOffer;
+        const payload = message.payload;
+        this.state.queue = payload.queue;
+        this.state.prizes = payload.prizes;
+        this.state.settings = payload.settings;
+        this.state.themeId = payload.themeId;
+        this.state.activeSpin = payload.activeSpin;
+        this.state.chest = payload.chest;
+        this.state.flashOffer = payload.flashOffer;
+        this.state.offerPool = payload.offerPool;
+        this.state.offerProgram = payload.offerProgram;
         break;
       }
       case 'queue.changed':
@@ -94,6 +102,12 @@ export class PanelStore {
         break;
       case 'offer.changed':
         this.state.flashOffer = message.payload.offer;
+        break;
+      case 'offer.pool.changed':
+        this.state.offerPool = message.payload.pool;
+        break;
+      case 'offer.program.changed':
+        this.state.offerProgram = message.payload.program;
         break;
       default:
         return;
