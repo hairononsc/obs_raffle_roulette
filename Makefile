@@ -34,6 +34,7 @@ status: ## Estado de los contenedores
 
 dev: ## Modo desarrollo sin Docker (SQLite local)
 	pnpm live
+	
 
 test: ## Corre toda la suite de tests
 	pnpm test

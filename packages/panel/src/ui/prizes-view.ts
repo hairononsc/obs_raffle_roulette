@@ -71,7 +71,7 @@ export class PrizesView {
       row.append(
         el('td', {}, [
           el('span', { className: 'color-dot', attrs: { style: `background:${prize.color}` } }),
-          el('span', { text: ` ${prize.name}` }),
+          el('span', { text: ` ${prize.name}${prize.respin ? ' 🔄' : ''}` }),
         ]),
         el('td', { text: String(prize.weight) }),
         el('td', { text: probability === null ? '—' : `${probability.toFixed(1)}%` }),
@@ -118,6 +118,7 @@ export class PrizesView {
                 active: false,
                 cost: prize.cost,
                 conditions: prize.conditions,
+                respin: prize.respin,
               });
             },
             { disabled: this.spinning, title: 'Duplicar (se crea desactivado)' },
@@ -155,6 +156,7 @@ class PrizeDialog {
   private readonly color = el('input', { attrs: { type: 'color', value: '#e63946' } });
   private readonly icon = el('input', { attrs: { value: 'prize-jeans', maxlength: '40' } });
   private readonly active = el('input', { attrs: { type: 'checkbox', checked: 'true' } });
+  private readonly respin = el('input', { attrs: { type: 'checkbox' } });
   private readonly whatIf = el('p', { className: 'muted whatif-line' });
   private onSubmit: ((input: PrizeInput) => void) | null = null;
   private editing: Prize | null = null;
@@ -174,6 +176,10 @@ class PrizeDialog {
       field('Color', this.color),
       field('Icono (emoji o clave del tema)', this.icon),
       el('label', { className: 'field-check' }, [this.active, 'Activo (visible en la ruleta)']),
+      el('label', { className: 'field-check' }, [
+        this.respin,
+        '🔄 Al ganarlo, vuelve a girar automáticamente (no consume el giro)',
+      ]),
       this.whatIf,
       el('div', { className: 'dialog-actions' }, [
         button('Cancelar', 'btn btn-ghost', () => {
@@ -205,6 +211,7 @@ class PrizeDialog {
     this.color.value = prize?.color ?? '#e63946';
     this.icon.value = prize?.icon ?? 'prize-jeans';
     this.active.checked = prize?.active ?? true;
+    this.respin.checked = prize?.respin ?? false;
     this.renderWhatIf();
     this.root.showModal();
     this.name.focus();
@@ -245,6 +252,7 @@ class PrizeDialog {
       active: this.active.checked,
       cost: Number.isFinite(costRaw) && costRaw >= 0 ? costRaw : 0,
       conditions: this.editing?.conditions ?? {},
+      respin: this.respin.checked,
     };
   }
 

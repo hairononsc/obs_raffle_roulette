@@ -34,9 +34,15 @@ export interface SpinServiceDeps {
  * outcome is decided, stock reserved and the record persisted in a single
  * transaction BEFORE any client hears about the spin.
  */
+/** Pause between an auto re-spin completion and the automatic relaunch. */
+const RESPIN_DELAY_MS = 1200;
+/** Safety cap on consecutive automatic re-spins (anti-loop insurance). */
+const MAX_RESPIN_CHAIN = 10;
+
 export class SpinService implements ActiveSpinGuard {
   private active: SpinRecord | null = null;
   private timer: ScheduledTask | null = null;
+  private respinChain = 0;
 
   constructor(private readonly deps: SpinServiceDeps) {}
 
@@ -55,6 +61,12 @@ export class SpinService implements ActiveSpinGuard {
   }
 
   async launch(entryId: string): Promise<ActiveSpin> {
+    // A manual launch breaks any automatic re-spin chain.
+    this.respinChain = 0;
+    return this.startSpin(entryId);
+  }
+
+  private async startSpin(entryId: string): Promise<ActiveSpin> {
     if (this.active !== null) {
       throw new DomainError('SPIN_IN_PROGRESS', 'a spin is already active');
     }
@@ -189,9 +201,19 @@ export class SpinService implements ActiveSpinGuard {
     }
     assertTransition(active.status, 'completed');
     const completedAt = this.deps.clock.now();
-    await this.deps.uow.run((repos) =>
-      repos.spins.updateStatus(active.spinId, 'completed', completedAt),
-    );
+
+    // Re-read the prize at completion time: a respin prize refunds the
+    // consumed spin in the same transaction (a deleted prize means no
+    // refund and no relaunch).
+    const { respin, queue } = await this.deps.uow.run(async (repos) => {
+      await repos.spins.updateStatus(active.spinId, 'completed', completedAt);
+      const prize = await repos.prizes.findById(active.prizeId);
+      if (prize?.respin !== true) {
+        return { respin: false, queue: null };
+      }
+      await repos.queue.incrementRemaining(active.entryId);
+      return { respin: true, queue: await repos.queue.list() };
+    });
 
     this.timer?.cancel();
     this.timer = null;
@@ -205,6 +227,35 @@ export class SpinService implements ActiveSpinGuard {
       prizeName: active.prizeName,
       completedAt,
     });
+
+    if (respin && queue !== null) {
+      this.events.publish({ kind: 'queue.changed', queue });
+      if (this.respinChain < MAX_RESPIN_CHAIN) {
+        this.respinChain += 1;
+        this.deps.scheduler.schedule(RESPIN_DELAY_MS, () => {
+          this.autoRelaunch(active.entryId).catch((error: unknown) => {
+            console.error('[spin-service] auto re-spin failed unexpectedly', error);
+          });
+        });
+      } else {
+        console.warn('[spin-service] re-spin chain limit reached; refund kept, launch manually');
+      }
+    }
+  }
+
+  /** Automatic relaunch after a respin prize. Domain failures (entry
+   *  removed, nothing eligible, another spin already running) are logged
+   *  and swallowed: the refunded spin stays and the operator decides. */
+  private async autoRelaunch(entryId: string): Promise<void> {
+    try {
+      await this.startSpin(entryId);
+    } catch (error) {
+      if (error instanceof DomainError) {
+        console.warn(`[spin-service] auto re-spin skipped: ${error.code}`);
+        return;
+      }
+      throw error;
+    }
   }
 
   private get events(): EventBus {

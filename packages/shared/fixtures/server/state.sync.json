@@ -24,7 +24,8 @@
         "conditions": {
           "minPurchase": 500,
           "maxPerDay": 2
-        }
+        },
+        "respin": false
       },
       {
         "id": "prize-02",
@@ -35,7 +36,8 @@
         "icon": "prize-discount",
         "active": true,
         "cost": 0,
-        "conditions": {}
+        "conditions": {},
+        "respin": false
       }
     ],
     "segments": [

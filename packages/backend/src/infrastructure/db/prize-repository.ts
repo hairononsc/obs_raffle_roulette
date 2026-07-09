@@ -42,6 +42,7 @@ export class SqlitePrizeRepository implements PrizeRepository {
         created_at: createdAt,
         cost: prize.cost,
         conditions: JSON.stringify(prize.conditions),
+        respin: prize.respin ? 1 : 0,
       })
       .execute();
   }
@@ -58,6 +59,7 @@ export class SqlitePrizeRepository implements PrizeRepository {
         active: prize.active ? 1 : 0,
         cost: prize.cost,
         conditions: JSON.stringify(prize.conditions),
+        respin: prize.respin ? 1 : 0,
       })
       .where('id', '=', prize.id)
       .execute();

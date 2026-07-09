@@ -61,6 +61,15 @@ export class SqliteQueueRepository implements QueueRepository {
     }
   }
 
+  /** Refunds one spin (auto re-spin). No-op if the entry was deleted. */
+  async incrementRemaining(id: string): Promise<void> {
+    await this.db
+      .updateTable('queue_entries')
+      .set((eb) => ({ spins_remaining: eb('spins_remaining', '+', 1) }))
+      .where('id', '=', id)
+      .execute();
+  }
+
   async remove(id: string): Promise<boolean> {
     const result = await this.db
       .deleteFrom('queue_entries')

@@ -305,3 +305,94 @@ describe('SpinService.launch — per-customer eligibility', () => {
     expect(Object.values(counts).reduce((a, b) => a + b, 0)).toBe(1);
   });
 });
+
+describe('SpinService — auto re-spin', () => {
+  async function setupRespin(rolls: number[]): Promise<Context> {
+    const ctx = createContext(rolls);
+    await insertPrizes(ctx.uow, ctx.clock, [
+      testPrize({ id: 'again', name: 'Vuelve a Girar', weight: 1, respin: true }),
+      testPrize({ id: 'gift', name: 'Regalo', weight: 4 }),
+    ]);
+    return ctx;
+  }
+
+  it('refunds the spin, publishes the queue and relaunches automatically', async () => {
+    // launch1: roll 0.05 -> "again" (respin). relaunch: roll 0.9 -> "gift".
+    const ctx = await setupRespin([0.05, 0, 0.9, 0]);
+    await insertQueueEntry(ctx.uow, { id: 'entry-r', spinsTotal: 1, spinsRemaining: 1 });
+
+    await ctx.service.launch('entry-r');
+    await ctx.scheduler.runPending(); // safety timer -> completes the respin spin
+
+    // Refund persisted and broadcast.
+    const afterRefund = await ctx.uow.run((repos) => repos.queue.findById('entry-r'));
+    expect(afterRefund?.spinsRemaining).toBe(1);
+    expect(ctx.events.ofKind('queue.changed').length).toBeGreaterThanOrEqual(2);
+
+    await ctx.scheduler.runPending(); // respin delay timer -> auto relaunch
+
+    const starts = ctx.events.ofKind('spin.started');
+    expect(starts).toHaveLength(2);
+    expect(starts[1]?.spin.prizeId).toBe('gift');
+    expect(starts[1]?.spin.entryId).toBe('entry-r');
+
+    // The relaunch consumed the refunded spin: net zero.
+    const final = await ctx.uow.run((repos) => repos.queue.findById('entry-r'));
+    expect(final?.spinsRemaining).toBe(0);
+  });
+
+  it('a normal prize neither refunds nor relaunches', async () => {
+    const ctx = await setupRespin([0.9, 0]);
+    await insertQueueEntry(ctx.uow, { id: 'entry-n', spinsTotal: 1, spinsRemaining: 1 });
+
+    await ctx.service.launch('entry-n');
+    await ctx.scheduler.runPending();
+    await ctx.scheduler.runPending();
+
+    expect(ctx.events.ofKind('spin.started')).toHaveLength(1);
+    const entry = await ctx.uow.run((repos) => repos.queue.findById('entry-n'));
+    expect(entry?.spinsRemaining).toBe(0);
+  });
+
+  it('caps a runaway re-spin chain at the safety limit', async () => {
+    // Every roll lands on the respin prize (weight 1 vs 4: roll 0.05).
+    const rolls = Array.from({ length: 60 }, (_, i) => (i % 2 === 0 ? 0.05 : 0));
+    const ctx = await setupRespin(rolls);
+    await insertQueueEntry(ctx.uow, { id: 'entry-loop', spinsTotal: 1, spinsRemaining: 1 });
+
+    await ctx.service.launch('entry-loop');
+    // Alternate completing and relaunching far beyond the cap.
+    for (let i = 0; i < 30; i += 1) {
+      await ctx.scheduler.runPending();
+    }
+
+    // 1 manual + at most MAX_RESPIN_CHAIN (10) automatic launches.
+    expect(ctx.events.ofKind('spin.started').length).toBeLessThanOrEqual(11);
+  });
+
+  it('a deleted entry makes the relaunch a silent no-op (refund kept)', async () => {
+    const ctx = await setupRespin([0.05, 0]);
+    await insertQueueEntry(ctx.uow, { id: 'entry-gone', spinsTotal: 1, spinsRemaining: 1 });
+
+    await ctx.service.launch('entry-gone');
+    await ctx.scheduler.runPending(); // completes, schedules relaunch
+    await ctx.uow.run((repos) => repos.queue.remove('entry-gone'));
+    await ctx.scheduler.runPending(); // relaunch fires against a missing entry
+
+    expect(ctx.events.ofKind('spin.started')).toHaveLength(1);
+  });
+
+  it('a respin prize deleted mid-spin causes no refund and no relaunch', async () => {
+    const ctx = await setupRespin([0.05, 0]);
+    await insertQueueEntry(ctx.uow, { id: 'entry-del', spinsTotal: 2, spinsRemaining: 2 });
+
+    await ctx.service.launch('entry-del');
+    await ctx.uow.run((repos) => repos.prizes.remove('again'));
+    await ctx.scheduler.runPending();
+    await ctx.scheduler.runPending();
+
+    expect(ctx.events.ofKind('spin.started')).toHaveLength(1);
+    const entry = await ctx.uow.run((repos) => repos.queue.findById('entry-del'));
+    expect(entry?.spinsRemaining).toBe(1); // consumed, not refunded
+  });
+});

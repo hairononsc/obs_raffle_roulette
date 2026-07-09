@@ -14,6 +14,7 @@ export interface PrizesTable {
   cost: number;
   /** JSON-encoded PrizeConditions; '{}' = unconditional. */
   conditions: string;
+  respin: number;
 }
 
 export interface QueueEntriesTable {

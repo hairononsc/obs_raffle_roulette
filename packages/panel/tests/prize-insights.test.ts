@@ -19,6 +19,7 @@ function prize(overrides: Partial<Prize> & Pick<Prize, 'id'>): Prize {
     active: true,
     cost: 0,
     conditions: {},
+    respin: false,
     ...overrides,
   };
 }

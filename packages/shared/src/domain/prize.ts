@@ -28,6 +28,9 @@ export const PrizeSchema = z.object({
   cost: z.number().min(0).default(0),
   /** Eligibility rules evaluated per customer; `{}` = unconditional. */
   conditions: PrizeConditionsSchema.default({}),
+  /** Winning this prize refunds the spin and auto-launches another one
+   *  ("Vuelve a Girar"). */
+  respin: z.boolean().default(false),
 });
 
 export type Prize = z.infer<typeof PrizeSchema>;

@@ -7,8 +7,8 @@ const SYNC_PAYLOAD: StateSyncMessage['payload'] = {
   settings: { durationMs: 8000, extraRotations: { min: 4, max: 7 } },
   themeId: 'casino',
   prizes: [
-    { id: 'a', name: 'A', weight: 1, stock: 5, color: '#111111', icon: 'x', active: true, cost: 0, conditions: {} },
-    { id: 'b', name: 'B', weight: 3, stock: null, color: '#222222', icon: 'x', active: true, cost: 0, conditions: {} },
+    { id: 'a', name: 'A', weight: 1, stock: 5, color: '#111111', icon: 'x', active: true, cost: 0, conditions: {}, respin: false },
+    { id: 'b', name: 'B', weight: 3, stock: null, color: '#222222', icon: 'x', active: true, cost: 0, conditions: {}, respin: false },
   ],
   segments: [],
   queue: [{ id: 'e1', buyerName: 'Carlos', spinsTotal: 2, spinsRemaining: 2, createdAt: 1 }],

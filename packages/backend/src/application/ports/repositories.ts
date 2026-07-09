@@ -32,6 +32,8 @@ export interface QueueRepository {
   findById(id: string): Promise<QueueEntry | null>;
   create(entry: QueueEntry): Promise<void>;
   decrementRemaining(id: string): Promise<void>;
+  /** Refunds one spin (auto re-spin); no-op if the entry is gone. */
+  incrementRemaining(id: string): Promise<void>;
   /** Returns false when the entry did not exist. */
   remove(id: string): Promise<boolean>;
 }

@@ -16,7 +16,8 @@
         "minPurchase": 700,
         "maxPerDay": 2,
         "oncePerCustomer": true
-      }
+      },
+      "respin": false
     }
   }
 }

@@ -33,6 +33,7 @@ export function prizeFromRow(row: PrizesTable): Prize {
     active: row.active === 1,
     cost: row.cost,
     conditions: parseConditions(row.conditions),
+    respin: row.respin === 1,
   };
 }
 

@@ -143,6 +143,11 @@ const MIGRATIONS: readonly Migration[] = [
       `CREATE INDEX idx_spins_customer_prize ON spins(customer_id, prize_id)`,
     ],
   },
+  // v3 — auto re-spin flag on prizes ("Vuelve a Girar").
+  {
+    sqlite: [`ALTER TABLE prizes ADD COLUMN respin INTEGER NOT NULL DEFAULT 0`],
+    postgres: [`ALTER TABLE prizes ADD COLUMN respin INTEGER NOT NULL DEFAULT 0`],
+  },
 ];
 
 const CREATE_TRACKING_TABLE = `CREATE TABLE IF NOT EXISTS schema_migrations (

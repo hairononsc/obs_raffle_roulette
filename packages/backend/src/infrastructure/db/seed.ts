@@ -24,6 +24,7 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     // Compra mínima RD$750 · máximo 1 ganador por live. "Sujeto a
     // disponibilidad" = pon stock real desde el panel si quieres tope duro.
     conditions: { minPurchase: 750, maxPerDay: 1 },
+    respin: false,
   },
   {
     name: 'Reembolso Parcial',
@@ -34,6 +35,7 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     active: true,
     cost: 300, // hasta RD$300, monto configurable al entregar
     conditions: { minPurchase: 700, maxPerDay: 2 },
+    respin: false,
   },
   {
     name: 'Regalo Sorpresa',
@@ -44,6 +46,7 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     active: true,
     cost: 40, // costo máximo del detalle físico (RD$20–40)
     conditions: {},
+    respin: false,
   },
   {
     name: 'Vuelve a Girar',
@@ -54,6 +57,8 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     active: true,
     cost: 0,
     conditions: {},
+    // El corazón del auto re-spin: reembolsa el giro y relanza solo.
+    respin: true,
   },
   {
     name: 'Cliente VIP',
@@ -64,6 +69,7 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     active: true,
     cost: 0, // acceso a promociones exclusivas y prioridad en próximos eventos
     conditions: {},
+    respin: false,
   },
   {
     name: 'Cupón Próxima Compra',
@@ -74,6 +80,7 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     active: true,
     cost: 0, // RD$0 inmediato; monto configurable (RD$100, RD$150, %) al redimir
     conditions: {},
+    respin: false,
   },
   {
     name: 'Accesorio Sorpresa',
@@ -84,6 +91,7 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     active: true,
     cost: 40, // RD$20–40
     conditions: {},
+    respin: false,
   },
   {
     name: 'Oferta Exclusiva',
@@ -95,6 +103,7 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     cost: 0, // variable; la define el operador en la campaña
     // Solo aparece cuando hay una oferta relámpago / campaña activa.
     conditions: { requiresActiveOffer: true },
+    respin: false,
   },
   {
     name: 'Doble Participación',
@@ -105,6 +114,7 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     active: true,
     cost: 0, // válida para el próximo evento de ruleta, no el live actual
     conditions: {},
+    respin: false,
   },
   {
     name: 'Gracias por apoyar',
@@ -115,6 +125,7 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     active: true,
     cost: 0, // premio neutro: equilibra la probabilidad total al 100%
     conditions: {},
+    respin: false,
   },
 ];
 
