@@ -3,8 +3,10 @@ import { el } from './core/dom.js';
 import { ToastCenter } from './core/toast.js';
 import { PanelSocket, resolveWsUrl } from './net/panel-socket.js';
 import { PanelStore } from './state/store.js';
+import { ChestControlView } from './ui/chest-control-view.js';
 import { HeaderView } from './ui/header-view.js';
 import { HistoryView } from './ui/history-view.js';
+import { OfferControlView } from './ui/offer-control-view.js';
 import { PrizesView } from './ui/prizes-view.js';
 import { QueueView } from './ui/queue-view.js';
 import { SettingsView } from './ui/settings-view.js';
@@ -21,11 +23,13 @@ export function startPanel(container: HTMLElement): void {
   const prizes = new PrizesView(actions);
   const settings = new SettingsView(actions);
   const history = new HistoryView();
+  const chest = new ChestControlView(actions);
+  const offer = new OfferControlView(actions);
 
   container.append(
     header.root,
     el('main', { className: 'layout' }, [
-      el('div', { className: 'column' }, [queue.root, settings.root]),
+      el('div', { className: 'column' }, [queue.root, chest.root, offer.root, settings.root]),
       el('div', { className: 'column' }, [prizes.root, history.root]),
     ]),
   );
@@ -36,6 +40,8 @@ export function startPanel(container: HTMLElement): void {
     queue.update(store.state);
     prizes.update(store.state);
     settings.update(store.state);
+    chest.update(store.state);
+    offer.update(store.state);
   };
   store.subscribe(render);
 

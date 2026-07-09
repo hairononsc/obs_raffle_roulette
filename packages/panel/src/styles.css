@@ -465,3 +465,38 @@ input[type='range'] {
   background: var(--danger);
   color: #fff;
 }
+
+/* --- Cofre del Live --- */
+
+.chest-status {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 4px 0 10px;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* --- Oferta Relámpago --- */
+
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.offer-active-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.offer-countdown {
+  font-size: 2.4rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 10px;
+}

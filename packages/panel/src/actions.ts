@@ -1,4 +1,12 @@
 import type {
+  ChestCloseMessage,
+  ChestConfigureMessage,
+  ChestKeyAddMessage,
+  ChestKeyRemoveMessage,
+  ChestOpenMessage,
+  ChestResetMessage,
+  OfferCancelMessage,
+  OfferStartMessage,
   PrizeCreateMessage,
   PrizeDeleteMessage,
   PrizeInput,
@@ -79,6 +87,50 @@ export class PanelActions {
     );
   }
 
+  async addChestKey(): Promise<void> {
+    await this.exec(() => this.socket.request<ChestKeyAddMessage>('chest.key.add', {}));
+  }
+
+  async removeChestKey(): Promise<void> {
+    await this.exec(() => this.socket.request<ChestKeyRemoveMessage>('chest.key.remove', {}));
+  }
+
+  async openChest(): Promise<void> {
+    await this.exec(() => this.socket.request<ChestOpenMessage>('chest.open', {}));
+  }
+
+  async closeChest(): Promise<void> {
+    await this.exec(() => this.socket.request<ChestCloseMessage>('chest.close', {}));
+  }
+
+  async resetChest(): Promise<void> {
+    await this.exec(
+      () => this.socket.request<ChestResetMessage>('chest.reset', {}),
+      'Cofre reiniciado',
+    );
+  }
+
+  async configureChest(prize: string, keysTarget: number): Promise<void> {
+    await this.exec(
+      () => this.socket.request<ChestConfigureMessage>('chest.configure', { prize, keysTarget }),
+      'Cofre configurado',
+    );
+  }
+
+  async startOffer(title: string, description: string, durationMs: number): Promise<void> {
+    await this.exec(
+      () => this.socket.request<OfferStartMessage>('offer.start', { title, description, durationMs }),
+      'Oferta relámpago activada',
+    );
+  }
+
+  async cancelOffer(): Promise<void> {
+    await this.exec(
+      () => this.socket.request<OfferCancelMessage>('offer.cancel', {}),
+      'Oferta cancelada',
+    );
+  }
+
   private async exec(command: () => Promise<void>, successMessage?: string): Promise<void> {
     try {
       await command();
@@ -97,7 +149,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   NO_SPINS_REMAINING: 'Este comprador ya no tiene giros',
   ENTRY_NOT_FOUND: 'El comprador ya no está en la cola',
   PRIZE_NOT_FOUND: 'El premio ya no existe',
-  INVALID_STATE: 'No permitido mientras hay un giro activo',
+  INVALID_STATE: 'Acción no permitida en el estado actual',
   OFFLINE: 'Sin conexión con el servidor',
   TIMEOUT: 'El servidor no respondió',
 };

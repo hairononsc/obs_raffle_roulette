@@ -1,5 +1,7 @@
 import type {
   ActiveSpin,
+  ChestState,
+  FlashOffer,
   Prize,
   QueueEntry,
   ServerMessage,
@@ -17,6 +19,8 @@ export interface PanelState {
   themeId: string;
   activeSpin: ActiveSpin | null;
   lastResult: SpinCompletedMessage['payload'] | null;
+  chest: ChestState | null;
+  flashOffer: FlashOffer | null;
 }
 
 type Listener = (state: PanelState) => void;
@@ -37,6 +41,8 @@ export class PanelStore {
     themeId: 'casino',
     activeSpin: null,
     lastResult: null,
+    chest: null,
+    flashOffer: null,
   };
 
   subscribe(listener: Listener): () => void {
@@ -54,12 +60,14 @@ export class PanelStore {
   apply(message: ServerMessage): void {
     switch (message.type) {
       case 'state.sync': {
-        const { queue, prizes, settings, themeId, activeSpin } = message.payload;
+        const { queue, prizes, settings, themeId, activeSpin, chest, flashOffer } = message.payload;
         this.state.queue = queue;
         this.state.prizes = prizes;
         this.state.settings = settings;
         this.state.themeId = themeId;
         this.state.activeSpin = activeSpin;
+        this.state.chest = chest;
+        this.state.flashOffer = flashOffer;
         break;
       }
       case 'queue.changed':
@@ -80,6 +88,12 @@ export class PanelStore {
       case 'spin.completed':
         this.state.activeSpin = null;
         this.state.lastResult = message.payload;
+        break;
+      case 'chest.changed':
+        this.state.chest = message.payload.chest;
+        break;
+      case 'offer.changed':
+        this.state.flashOffer = message.payload.offer;
         break;
       default:
         return;

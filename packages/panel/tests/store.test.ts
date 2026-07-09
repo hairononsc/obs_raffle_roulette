@@ -13,6 +13,8 @@ const SYNC_PAYLOAD: StateSyncMessage['payload'] = {
   segments: [],
   queue: [{ id: 'e1', buyerName: 'Carlos', spinsTotal: 2, spinsRemaining: 2, createdAt: 1 }],
   activeSpin: null,
+  chest: { keys: 2, keysTarget: 5, prize: '👖 Jean Gratis', status: 'locked' },
+  flashOffer: null,
 };
 
 function sync(): ServerMessage {
@@ -27,6 +29,34 @@ describe('PanelStore', () => {
     expect(store.state.queue[0]?.buyerName).toBe('Carlos');
     expect(store.state.settings?.durationMs).toBe(8000);
     expect(store.state.themeId).toBe('casino');
+    expect(store.state.chest).toMatchObject({ keys: 2, status: 'locked' });
+    expect(store.state.flashOffer).toBeNull();
+  });
+
+  it('applies chest.changed and offer.changed broadcasts', () => {
+    const store = new PanelStore();
+    store.apply(sync());
+
+    store.apply(
+      createMessage('chest.changed', {
+        chest: { keys: 5, keysTarget: 5, prize: '👖 Jean Gratis', status: 'unlocked' },
+        cause: 'keyAdded',
+      }),
+    );
+    expect(store.state.chest?.status).toBe('unlocked');
+
+    const offer = {
+      title: '2x1',
+      description: '',
+      durationMs: 60_000,
+      startedAt: 1_000,
+      endsAt: 61_000,
+    };
+    store.apply(createMessage('offer.changed', { offer, cause: 'started' }));
+    expect(store.state.flashOffer?.title).toBe('2x1');
+
+    store.apply(createMessage('offer.changed', { offer: null, cause: 'expired' }));
+    expect(store.state.flashOffer).toBeNull();
   });
 
   it('tracks the active spin through its lifecycle', () => {
