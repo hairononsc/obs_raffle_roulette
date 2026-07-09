@@ -3,6 +3,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import type { AppConfig } from './config.js';
 import { ChestService } from './application/services/chest-service.js';
 import { HistoryService } from './application/services/history-service.js';
+import { OfferProgramService } from './application/services/offer-program-service.js';
 import { OfferService } from './application/services/offer-service.js';
 import { PrizeService } from './application/services/prize-service.js';
 import { QueueService } from './application/services/queue-service.js';
@@ -35,6 +36,7 @@ export interface AppServices {
   snapshot: SnapshotService;
   chest: ChestService;
   offers: OfferService;
+  offerProgram: OfferProgramService;
 }
 
 export interface WheelLiveApp {
@@ -80,11 +82,21 @@ export async function createApp(config: AppConfig): Promise<WheelLiveApp> {
   const history = new HistoryService(uow);
   const chest = new ChestService(uow, events);
   const offers = new OfferService({ uow, events, clock: systemClock, scheduler: nodeScheduler });
-  const snapshot = new SnapshotService(uow, spins, offers);
+  const offerProgram = new OfferProgramService({
+    uow,
+    events,
+    clock: systemClock,
+    scheduler: nodeScheduler,
+    rng: mathRandomSource,
+    ids: cryptoIdGenerator,
+    offers,
+  });
+  const snapshot = new SnapshotService(uow, spins, offers, offerProgram);
 
   await seedIfEmpty(uow, cryptoIdGenerator, systemClock);
   await spins.recoverOnBoot();
   await offers.recoverOnBoot();
+  await offerProgram.recoverOnBoot();
 
   const fastify = Fastify({ logger: false });
   registerHttpRoutes(fastify, history);
@@ -93,7 +105,15 @@ export async function createApp(config: AppConfig): Promise<WheelLiveApp> {
 
   const registry = new ConnectionRegistry();
   connectBroadcaster(events, registry);
-  const dispatcher = new CommandDispatcher({ queue, prizes, settings, spins, chest, offers });
+  const dispatcher = new CommandDispatcher({
+    queue,
+    prizes,
+    settings,
+    spins,
+    chest,
+    offers,
+    offerProgram,
+  });
 
   attachWebSocketServer({
     httpServer: fastify.server,
@@ -106,7 +126,7 @@ export async function createApp(config: AppConfig): Promise<WheelLiveApp> {
   return {
     config,
     fastify,
-    services: { queue, prizes, settings, spins, history, snapshot, chest, offers },
+    services: { queue, prizes, settings, spins, history, snapshot, chest, offers, offerProgram },
     start: () => fastify.listen({ host: config.host, port: config.port }),
     stop: async () => {
       await fastify.close();

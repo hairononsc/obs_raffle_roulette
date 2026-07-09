@@ -1,4 +1,12 @@
-import type { ChestState, FlashOffer, Prize, QueueEntry, SpinSettings } from '@wheellive/shared';
+import type {
+  ChestState,
+  FlashOffer,
+  OfferProgramState,
+  OfferTemplate,
+  Prize,
+  QueueEntry,
+  SpinSettings,
+} from '@wheellive/shared';
 
 import type { HistoryPage, SpinStats } from '../../domain/history.js';
 import type { SpinStatus } from '../../domain/spin-lifecycle.js';
@@ -44,6 +52,10 @@ export interface SettingsRepository {
   setChestState(state: ChestState): Promise<void>;
   getFlashOffer(): Promise<FlashOffer | null>;
   setFlashOffer(offer: FlashOffer | null): Promise<void>;
+  getOfferPool(): Promise<OfferTemplate[]>;
+  setOfferPool(pool: OfferTemplate[]): Promise<void>;
+  getOfferProgram(): Promise<OfferProgramState | null>;
+  setOfferProgram(state: OfferProgramState | null): Promise<void>;
 }
 
 export interface RepositorySet {

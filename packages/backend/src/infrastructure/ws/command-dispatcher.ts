@@ -2,6 +2,7 @@ import type { ClientMessage, ClientRole } from '@wheellive/shared';
 
 import { DomainError } from '../../domain/errors.js';
 import type { ChestService } from '../../application/services/chest-service.js';
+import type { OfferProgramService } from '../../application/services/offer-program-service.js';
 import type { OfferService } from '../../application/services/offer-service.js';
 import type { PrizeService } from '../../application/services/prize-service.js';
 import type { QueueService } from '../../application/services/queue-service.js';
@@ -26,6 +27,10 @@ const ROLE_PERMISSIONS: Record<ClientRole, ReadonlySet<ClientMessage['type']>> =
     'chest.configure',
     'offer.start',
     'offer.cancel',
+    'offer.pool.add',
+    'offer.pool.remove',
+    'offer.program.start',
+    'offer.program.stop',
   ]),
   widget: new Set(['wheel.spin.landed']),
 };
@@ -37,6 +42,7 @@ export interface DispatcherServices {
   spins: SpinService;
   chest: ChestService;
   offers: OfferService;
+  offerProgram: OfferProgramService;
 }
 
 /** Routes an authenticated client message to the right application service. */
@@ -115,6 +121,18 @@ export class CommandDispatcher {
         return;
       case 'offer.cancel':
         await this.services.offers.cancel();
+        return;
+      case 'offer.pool.add':
+        await this.services.offerProgram.addTemplate(message.payload.template);
+        return;
+      case 'offer.pool.remove':
+        await this.services.offerProgram.removeTemplate(message.payload.templateId);
+        return;
+      case 'offer.program.start':
+        await this.services.offerProgram.start(message.payload);
+        return;
+      case 'offer.program.stop':
+        await this.services.offerProgram.stop();
         return;
     }
   }

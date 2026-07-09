@@ -258,6 +258,45 @@ describe('WebSocket server (end to end)', () => {
     late.close();
   });
 
+  it('offer program round-trip: pool add, start, state.sync, stop', async () => {
+    const panel = await connect(wsUrl);
+    panel.send(createMessage('hello', { role: 'panel' }));
+    await panel.waitFor('state.sync');
+
+    panel.send(
+      createMessage(
+        'offer.pool.add',
+        { template: { title: '2x1 en jeans', description: 'Ahora', durationMs: 600_000 } },
+        'req-tpl',
+      ),
+    );
+    const poolChanged = await panel.waitFor('offer.pool.changed');
+    expect(poolChanged.payload.pool).toHaveLength(1);
+    const templateId = poolChanged.payload.pool[0]?.id ?? '';
+
+    panel.send(
+      createMessage('offer.program.start', { liveDurationMs: 10_800_000, offerCount: 3 }, 'req-pg'),
+    );
+    const started = await panel.waitFor('offer.program.changed');
+    expect(started.payload.cause).toBe('started');
+    expect(started.payload.program?.fireAt.length).toBeGreaterThan(0);
+
+    // A reconnecting client sees pool and program in state.sync.
+    const late = await connect(wsUrl);
+    late.send(createMessage('hello', { role: 'panel' }));
+    const sync = await late.waitFor('state.sync');
+    expect(sync.payload.offerPool).toHaveLength(1);
+    expect(sync.payload.offerProgram?.totalCount).toBe(3);
+
+    panel.send(createMessage('offer.program.stop', {}, 'req-stop'));
+    await panel.waitForAck('req-stop');
+    panel.send(createMessage('offer.pool.remove', { templateId }, 'req-rm'));
+    await panel.waitForAck('req-rm');
+
+    panel.close();
+    late.close();
+  });
+
   it('serves history over REST after spins complete', async () => {
     const base = wsUrl.replace(/^ws/, 'http').replace('/ws', '');
     const response = await fetch(`${base}/api/history`);

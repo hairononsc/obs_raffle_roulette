@@ -4,6 +4,9 @@ import type {
   ChestState,
   FlashOffer,
   OfferChangedMessage,
+  OfferProgramChangedMessage,
+  OfferProgramState,
+  OfferTemplate,
   Prize,
   QueueEntry,
   SpinSettings,
@@ -12,6 +15,7 @@ import type {
 
 export type ChestChangeCause = ChestChangedMessage['payload']['cause'];
 export type OfferChangeCause = OfferChangedMessage['payload']['cause'];
+export type OfferProgramChangeCause = OfferProgramChangedMessage['payload']['cause'];
 
 /**
  * Domain events published by application services. Subscribers (the WS
@@ -33,7 +37,13 @@ export type DomainEvent =
   | { kind: 'settings.changed'; settings: SpinSettings }
   | { kind: 'theme.changed'; themeId: string }
   | { kind: 'chest.changed'; chest: ChestState; cause: ChestChangeCause }
-  | { kind: 'offer.changed'; offer: FlashOffer | null; cause: OfferChangeCause };
+  | { kind: 'offer.changed'; offer: FlashOffer | null; cause: OfferChangeCause }
+  | { kind: 'offer.pool.changed'; pool: OfferTemplate[] }
+  | {
+      kind: 'offer.program.changed';
+      program: OfferProgramState | null;
+      cause: OfferProgramChangeCause;
+    };
 
 export type EventHandler = (event: DomainEvent) => void;
 
