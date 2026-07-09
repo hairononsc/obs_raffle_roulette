@@ -17,6 +17,8 @@ export interface SpinRecord {
   status: SpinStatus;
   startedAt: number;
   completedAt: number | null;
+  /** Null for pre-eligibility spins (no customer registry yet). */
+  customerId: string | null;
 }
 
 /** Protocol view of a spin; `null` once the spin is completed. */

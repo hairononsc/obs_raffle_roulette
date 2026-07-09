@@ -98,6 +98,8 @@ export function testPrize(overrides: Partial<Prize> & Pick<Prize, 'id'>): Prize 
     color: '#123456',
     icon: 'icon-test',
     active: true,
+    cost: 0,
+    conditions: {},
     ...overrides,
   };
 }

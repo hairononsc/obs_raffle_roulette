@@ -74,6 +74,57 @@ export class SqliteSpinRepository implements SpinRepository {
     };
   }
 
+  /** Awards per prize since each boundary. Counts every spin by
+   *  started_at (any status): the prize is decided and stock reserved at
+   *  launch, so in-flight spins must count toward caps. */
+  async countAwardsByPrize(since: {
+    day: number;
+    week: number;
+    month: number;
+  }): Promise<Record<string, { day: number; week: number; month: number }>> {
+    const rows = await this.db
+      .selectFrom('spins')
+      .select((eb) => [
+        'prize_id',
+        eb.fn
+          .sum(eb.case().when('started_at', '>=', since.day).then(1).else(0).end())
+          .as('day_count'),
+        eb.fn
+          .sum(eb.case().when('started_at', '>=', since.week).then(1).else(0).end())
+          .as('week_count'),
+        eb.fn.countAll().as('month_count'),
+      ])
+      .where('started_at', '>=', since.month)
+      .groupBy('prize_id')
+      .execute();
+
+    const counts: Record<string, { day: number; week: number; month: number }> = {};
+    for (const row of rows) {
+      counts[row.prize_id] = {
+        day: Number(row.day_count),
+        week: Number(row.week_count),
+        month: Number(row.month_count),
+      };
+    }
+    return counts;
+  }
+
+  /** Total awards per prize for one customer, all time, any status. */
+  async countAwardsByCustomer(customerId: string): Promise<Record<string, number>> {
+    const rows = await this.db
+      .selectFrom('spins')
+      .select((eb) => ['prize_id', eb.fn.countAll().as('count')])
+      .where('customer_id', '=', customerId)
+      .groupBy('prize_id')
+      .execute();
+
+    const counts: Record<string, number> = {};
+    for (const row of rows) {
+      counts[row.prize_id] = Number(row.count);
+    }
+    return counts;
+  }
+
   async stats(): Promise<SpinStats> {
     const totals = await this.db
       .selectFrom('spins')

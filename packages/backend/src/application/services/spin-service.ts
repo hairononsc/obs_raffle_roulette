@@ -88,6 +88,7 @@ export class SpinService implements ActiveSpinGuard {
         status: 'spinning',
         startedAt: this.deps.clock.now(),
         completedAt: null,
+        customerId: entry.customerId ?? null,
       };
 
       await repos.queue.decrementRemaining(entryId);

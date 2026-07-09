@@ -1,6 +1,7 @@
 import type { Kysely } from 'kysely';
 
 import type { RepositorySet, UnitOfWork } from '../../application/ports/repositories.js';
+import { SqliteCustomerRepository } from './customer-repository.js';
 import { SqlitePrizeRepository } from './prize-repository.js';
 import { SqliteQueueRepository } from './queue-repository.js';
 import type { Database } from './schema.js';
@@ -13,6 +14,7 @@ function createRepositorySet(db: Kysely<Database>): RepositorySet {
     queue: new SqliteQueueRepository(db),
     spins: new SqliteSpinRepository(db),
     settings: new SqliteSettingsRepository(db),
+    customers: new SqliteCustomerRepository(db),
   };
 }
 

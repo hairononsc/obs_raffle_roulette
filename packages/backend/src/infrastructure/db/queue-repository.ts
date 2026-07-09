@@ -39,6 +39,12 @@ export class SqliteQueueRepository implements QueueRepository {
         spins_remaining: entry.spinsRemaining,
         note: entry.note ?? null,
         created_at: entry.createdAt,
+        customer_id: entry.customerId ?? null,
+        purchase_amount: entry.purchaseAmount ?? null,
+        items_count: entry.itemsCount ?? null,
+        profile_id: entry.profileId ?? null,
+        eligible_prize_ids:
+          entry.eligiblePrizeIds === undefined ? null : JSON.stringify(entry.eligiblePrizeIds),
       })
       .execute();
   }

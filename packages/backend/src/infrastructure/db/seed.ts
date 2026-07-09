@@ -16,6 +16,8 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     color: '#E63946',
     icon: 'prize-jeans',
     active: true,
+    cost: 0,
+    conditions: {},
   },
   {
     name: '10% Descuento',
@@ -24,6 +26,8 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     color: '#457B9D',
     icon: 'prize-discount',
     active: true,
+    cost: 0,
+    conditions: {},
   },
   {
     name: 'Envío Gratis',
@@ -32,6 +36,8 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     color: '#2A9D8F',
     icon: 'prize-shipping',
     active: true,
+    cost: 0,
+    conditions: {},
   },
   {
     name: 'Gorra Exclusiva',
@@ -40,6 +46,8 @@ const SEED_PRIZES: readonly PrizeInput[] = [
     color: '#E9C46A',
     icon: 'prize-cap',
     active: true,
+    cost: 0,
+    conditions: {},
   },
 ];
 

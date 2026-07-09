@@ -1,8 +1,26 @@
-import type { Prize, QueueEntry } from '@wheellive/shared';
+import { PrizeConditionsSchema, type Customer, type Prize, type QueueEntry } from '@wheellive/shared';
 
 import type { SpinStatus } from '../../domain/spin-lifecycle.js';
 import type { SpinRecord } from '../../domain/spin-record.js';
-import type { PrizesTable, QueueEntriesTable, SpinsTable } from './schema.js';
+import type { CustomersTable, PrizesTable, QueueEntriesTable, SpinsTable } from './schema.js';
+
+function parseConditions(raw: string): Prize['conditions'] {
+  try {
+    const parsed = PrizeConditionsSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : {};
+  } catch {
+    return {};
+  }
+}
+
+function parsePrizeIds(raw: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === 'string') : [];
+  } catch {
+    return [];
+  }
+}
 
 export function prizeFromRow(row: PrizesTable): Prize {
   return {
@@ -13,6 +31,8 @@ export function prizeFromRow(row: PrizesTable): Prize {
     color: row.color,
     icon: row.icon,
     active: row.active === 1,
+    cost: row.cost,
+    conditions: parseConditions(row.conditions),
   };
 }
 
@@ -24,6 +44,23 @@ export function queueEntryFromRow(row: QueueEntriesTable): QueueEntry {
     spinsRemaining: row.spins_remaining,
     createdAt: row.created_at,
     ...(row.note !== null && { note: row.note }),
+    ...(row.customer_id !== null && { customerId: row.customer_id }),
+    ...(row.purchase_amount !== null && { purchaseAmount: row.purchase_amount }),
+    ...(row.items_count !== null && { itemsCount: row.items_count }),
+    ...(row.profile_id !== null && { profileId: row.profile_id }),
+    ...(row.eligible_prize_ids !== null && {
+      eligiblePrizeIds: parsePrizeIds(row.eligible_prize_ids),
+    }),
+  };
+}
+
+export function customerFromRow(row: CustomersTable): Customer {
+  return {
+    id: row.id,
+    name: row.name,
+    normalizedName: row.normalized_name,
+    firstSeenAt: row.first_seen_at,
+    ...(row.phone !== null && { phone: row.phone }),
   };
 }
 
@@ -40,6 +77,7 @@ export function spinFromRow(row: SpinsTable): SpinRecord {
     status: row.status as SpinStatus,
     startedAt: row.started_at,
     completedAt: row.completed_at,
+    customerId: row.customer_id,
   };
 }
 
@@ -56,5 +94,6 @@ export function spinToRow(record: SpinRecord): SpinsTable {
     status: record.status,
     started_at: record.startedAt,
     completed_at: record.completedAt,
+    customer_id: record.customerId,
   };
 }

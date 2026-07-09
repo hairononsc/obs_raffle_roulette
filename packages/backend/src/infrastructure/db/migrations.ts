@@ -101,6 +101,48 @@ const MIGRATIONS: readonly Migration[] = [
       )`,
     ],
   },
+  // v2 — per-customer eligibility engine: customers, purchase context on
+  // queue entries, prize cost/conditions, and award-count indexes.
+  {
+    sqlite: [
+      `ALTER TABLE prizes ADD COLUMN cost REAL NOT NULL DEFAULT 0`,
+      `ALTER TABLE prizes ADD COLUMN conditions TEXT NOT NULL DEFAULT '{}'`,
+      `CREATE TABLE customers (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        normalized_name TEXT NOT NULL UNIQUE,
+        phone TEXT,
+        first_seen_at INTEGER NOT NULL
+      )`,
+      `ALTER TABLE queue_entries ADD COLUMN customer_id TEXT`,
+      `ALTER TABLE queue_entries ADD COLUMN purchase_amount REAL`,
+      `ALTER TABLE queue_entries ADD COLUMN items_count INTEGER`,
+      `ALTER TABLE queue_entries ADD COLUMN profile_id TEXT`,
+      `ALTER TABLE queue_entries ADD COLUMN eligible_prize_ids TEXT`,
+      `ALTER TABLE spins ADD COLUMN customer_id TEXT`,
+      `CREATE INDEX idx_spins_prize_started ON spins(prize_id, started_at)`,
+      `CREATE INDEX idx_spins_customer_prize ON spins(customer_id, prize_id)`,
+    ],
+    postgres: [
+      `ALTER TABLE prizes ADD COLUMN cost DOUBLE PRECISION NOT NULL DEFAULT 0`,
+      `ALTER TABLE prizes ADD COLUMN conditions TEXT NOT NULL DEFAULT '{}'`,
+      `CREATE TABLE customers (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        normalized_name TEXT NOT NULL UNIQUE,
+        phone TEXT,
+        first_seen_at BIGINT NOT NULL
+      )`,
+      `ALTER TABLE queue_entries ADD COLUMN customer_id TEXT`,
+      `ALTER TABLE queue_entries ADD COLUMN purchase_amount DOUBLE PRECISION`,
+      `ALTER TABLE queue_entries ADD COLUMN items_count INTEGER`,
+      `ALTER TABLE queue_entries ADD COLUMN profile_id TEXT`,
+      `ALTER TABLE queue_entries ADD COLUMN eligible_prize_ids TEXT`,
+      `ALTER TABLE spins ADD COLUMN customer_id TEXT`,
+      `CREATE INDEX idx_spins_prize_started ON spins(prize_id, started_at)`,
+      `CREATE INDEX idx_spins_customer_prize ON spins(customer_id, prize_id)`,
+    ],
+  },
 ];
 
 const CREATE_TRACKING_TABLE = `CREATE TABLE IF NOT EXISTS schema_migrations (

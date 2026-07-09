@@ -1,11 +1,13 @@
 import type {
   ChestState,
+  Customer,
   FlashOffer,
   OfferProgramState,
   OfferTemplate,
   Prize,
   QueueEntry,
   SpinSettings,
+  WheelProfile,
 } from '@wheellive/shared';
 
 import type { HistoryPage, SpinStats } from '../../domain/history.js';
@@ -41,6 +43,21 @@ export interface SpinRepository {
   completeAllUnfinished(completedAt: number): Promise<number>;
   history(limit: number, offset: number): Promise<HistoryPage>;
   stats(): Promise<SpinStats>;
+  /** Awards per prize since each boundary (any status, by started_at). */
+  countAwardsByPrize(since: {
+    day: number;
+    week: number;
+    month: number;
+  }): Promise<Record<string, { day: number; week: number; month: number }>>;
+  /** Total awards per prize for one customer (any status). */
+  countAwardsByCustomer(customerId: string): Promise<Record<string, number>>;
+}
+
+export interface CustomerRepository {
+  findByNormalizedName(normalizedName: string): Promise<Customer | null>;
+  create(customer: Customer): Promise<void>;
+  /** Sets the phone only if the customer had none. */
+  setPhone(id: string, phone: string): Promise<void>;
 }
 
 export interface SettingsRepository {
@@ -56,6 +73,8 @@ export interface SettingsRepository {
   setOfferPool(pool: OfferTemplate[]): Promise<void>;
   getOfferProgram(): Promise<OfferProgramState | null>;
   setOfferProgram(state: OfferProgramState | null): Promise<void>;
+  getWheelProfiles(): Promise<WheelProfile[]>;
+  setWheelProfiles(profiles: WheelProfile[]): Promise<void>;
 }
 
 export interface RepositorySet {
@@ -63,6 +82,7 @@ export interface RepositorySet {
   queue: QueueRepository;
   spins: SpinRepository;
   settings: SettingsRepository;
+  customers: CustomerRepository;
 }
 
 /**

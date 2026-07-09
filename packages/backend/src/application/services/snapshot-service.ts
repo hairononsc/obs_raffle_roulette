@@ -32,6 +32,7 @@ export class SnapshotService {
         flashOffer: this.offers.getActive(),
         offerPool: await repos.settings.getOfferPool(),
         offerProgram: this.offerProgram.getState(),
+        profiles: await repos.settings.getWheelProfiles(),
       };
     });
   }

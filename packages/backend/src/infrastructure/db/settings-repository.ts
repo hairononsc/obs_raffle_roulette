@@ -4,11 +4,13 @@ import {
   OfferProgramStateSchema,
   OfferTemplateSchema,
   SpinSettingsSchema,
+  WheelProfileSchema,
   type ChestState,
   type FlashOffer,
   type OfferProgramState,
   type OfferTemplate,
   type SpinSettings,
+  type WheelProfile,
 } from '@wheellive/shared';
 import { z } from 'zod';
 import type { Kysely } from 'kysely';
@@ -29,6 +31,8 @@ const OFFER_POOL_KEY = 'offer_pool';
 const OFFER_PROGRAM_KEY = 'offer_program_state';
 
 const OfferPoolSchema = z.array(OfferTemplateSchema);
+const WHEEL_PROFILES_KEY = 'wheel_profiles';
+const WheelProfilesSchema = z.array(WheelProfileSchema);
 
 export class SqliteSettingsRepository implements SettingsRepository {
   constructor(private readonly db: Kysely<Database>) {}
@@ -104,6 +108,19 @@ export class SqliteSettingsRepository implements SettingsRepository {
 
   async setOfferProgram(state: OfferProgramState | null): Promise<void> {
     await this.setValue(OFFER_PROGRAM_KEY, JSON.stringify(state));
+  }
+
+  async getWheelProfiles(): Promise<WheelProfile[]> {
+    const raw = await this.getValue(WHEEL_PROFILES_KEY);
+    if (raw === null) {
+      return [];
+    }
+    const parsed = WheelProfilesSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : [];
+  }
+
+  async setWheelProfiles(profiles: WheelProfile[]): Promise<void> {
+    await this.setValue(WHEEL_PROFILES_KEY, JSON.stringify(profiles));
   }
 
   private async getValue(key: string): Promise<string | null> {
