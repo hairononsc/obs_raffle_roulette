@@ -2,6 +2,7 @@ import type { StateSyncMessage } from '@wheellive/shared';
 
 import { computeSegments } from '../../domain/wheel-layout.js';
 import type { UnitOfWork } from '../ports/repositories.js';
+import type { OfferService } from './offer-service.js';
 import type { SpinService } from './spin-service.js';
 
 /**
@@ -12,6 +13,7 @@ export class SnapshotService {
   constructor(
     private readonly uow: UnitOfWork,
     private readonly spins: SpinService,
+    private readonly offers: OfferService,
   ) {}
 
   async build(): Promise<StateSyncMessage['payload']> {
@@ -24,6 +26,8 @@ export class SnapshotService {
         segments: computeSegments(prizes),
         queue: await repos.queue.list(),
         activeSpin: this.spins.getActiveSpin(),
+        chest: await repos.settings.getChestState(),
+        flashOffer: this.offers.getActive(),
       };
     });
   }

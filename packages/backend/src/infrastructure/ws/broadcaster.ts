@@ -1,5 +1,7 @@
 import {
   createMessage,
+  type ChestChangedMessage,
+  type OfferChangedMessage,
   type PrizesChangedMessage,
   type QueueChangedMessage,
   type ServerMessage,
@@ -37,6 +39,16 @@ function toServerMessage(event: DomainEvent): ServerMessage {
       });
     case 'theme.changed':
       return createMessage<ThemeChangedMessage>('theme.changed', { themeId: event.themeId });
+    case 'chest.changed':
+      return createMessage<ChestChangedMessage>('chest.changed', {
+        chest: event.chest,
+        cause: event.cause,
+      });
+    case 'offer.changed':
+      return createMessage<OfferChangedMessage>('offer.changed', {
+        offer: event.offer,
+        cause: event.cause,
+      });
   }
 }
 

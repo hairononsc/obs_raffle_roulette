@@ -68,6 +68,28 @@ class TestClient {
     });
   }
 
+  /** Waits for the ack matching a specific request (waitFor('ack') would
+   *  return the first ack ever received). */
+  async waitForAck(requestId: string, timeoutMs = 3000): Promise<void> {
+    const matches = (message: ServerMessage): boolean =>
+      message.type === 'ack' && message.requestId === requestId;
+    if (this.received.some(matches)) {
+      return;
+    }
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error(`timed out waiting for ack "${requestId}"`));
+      }, timeoutMs);
+      this.waiters.push({
+        predicate: matches,
+        resolve: () => {
+          clearTimeout(timer);
+          resolve();
+        },
+      });
+    });
+  }
+
   close(): void {
     this.socket.close();
   }
@@ -109,6 +131,8 @@ describe('WebSocket server (end to end)', () => {
     const panelSync = await panel.waitFor('state.sync');
     expect(panelSync.payload.prizes.length).toBeGreaterThan(0);
     expect(panelSync.payload.activeSpin).toBeNull();
+    expect(panelSync.payload.chest).toMatchObject({ status: 'locked' });
+    expect(panelSync.payload.flashOffer).toBeNull();
 
     const widget = await connect(wsUrl);
     widget.send(createMessage('hello', { role: 'widget' }));
@@ -172,6 +196,65 @@ describe('WebSocket server (end to end)', () => {
 
     panel.close();
     lateWidget.close();
+  });
+
+  it('chest commands round-trip: panel adds a key, widget hears it, widget cannot', async () => {
+    const panel = await connect(wsUrl);
+    panel.send(createMessage('hello', { role: 'panel' }));
+    await panel.waitFor('state.sync');
+    const widget = await connect(wsUrl);
+    widget.send(createMessage('hello', { role: 'widget' }));
+    await widget.waitFor('state.sync');
+
+    panel.send(createMessage('chest.key.add', {}, 'req-key'));
+    const changed = await widget.waitFor('chest.changed');
+    expect(changed.payload.cause).toBe('keyAdded');
+    expect(changed.payload.chest.keys).toBeGreaterThan(0);
+
+    widget.send(createMessage('chest.key.add', {}, 'req-key-w'));
+    const forbidden = await widget.waitFor('error');
+    expect(forbidden.payload.code).toBe('FORBIDDEN');
+
+    panel.send(createMessage('chest.reset', {}, 'req-reset'));
+    await panel.waitFor('chest.changed');
+    panel.close();
+    widget.close();
+  });
+
+  it('offer start broadcasts to all clients and cancel clears it', async () => {
+    const panel = await connect(wsUrl);
+    panel.send(createMessage('hello', { role: 'panel' }));
+    await panel.waitFor('state.sync');
+    const widget = await connect(wsUrl);
+    widget.send(createMessage('hello', { role: 'widget' }));
+    await widget.waitFor('state.sync');
+
+    panel.send(
+      createMessage(
+        'offer.start',
+        { title: '2x1 en jeans', description: 'Ahora', durationMs: 60_000 },
+        'req-offer',
+      ),
+    );
+    const started = await widget.waitFor('offer.changed');
+    expect(started.payload.cause).toBe('started');
+    expect(started.payload.offer?.title).toBe('2x1 en jeans');
+
+    // A client connecting mid-offer sees it in state.sync.
+    const late = await connect(wsUrl);
+    late.send(createMessage('hello', { role: 'widget' }));
+    const sync = await late.waitFor('state.sync');
+    expect(sync.payload.flashOffer?.title).toBe('2x1 en jeans');
+
+    panel.send(createMessage('offer.cancel', {}, 'req-cancel'));
+    await panel.waitForAck('req-cancel');
+    // The broadcast precedes the ack, so the last offer.changed is the cancel.
+    const offerEvents = panel.received.filter((message) => message.type === 'offer.changed');
+    expect(offerEvents.at(-1)?.payload).toMatchObject({ offer: null, cause: 'cancelled' });
+
+    panel.close();
+    widget.close();
+    late.close();
   });
 
   it('serves history over REST after spins complete', async () => {

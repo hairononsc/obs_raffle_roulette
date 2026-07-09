@@ -1,6 +1,8 @@
 import type { ClientMessage, ClientRole } from '@wheellive/shared';
 
 import { DomainError } from '../../domain/errors.js';
+import type { ChestService } from '../../application/services/chest-service.js';
+import type { OfferService } from '../../application/services/offer-service.js';
 import type { PrizeService } from '../../application/services/prize-service.js';
 import type { QueueService } from '../../application/services/queue-service.js';
 import type { SettingsService } from '../../application/services/settings-service.js';
@@ -16,6 +18,14 @@ const ROLE_PERMISSIONS: Record<ClientRole, ReadonlySet<ClientMessage['type']>> =
     'prize.delete',
     'settings.update',
     'theme.set',
+    'chest.key.add',
+    'chest.key.remove',
+    'chest.open',
+    'chest.close',
+    'chest.reset',
+    'chest.configure',
+    'offer.start',
+    'offer.cancel',
   ]),
   widget: new Set(['wheel.spin.landed']),
 };
@@ -25,6 +35,8 @@ export interface DispatcherServices {
   prizes: PrizeService;
   settings: SettingsService;
   spins: SpinService;
+  chest: ChestService;
+  offers: OfferService;
 }
 
 /** Routes an authenticated client message to the right application service. */
@@ -79,6 +91,30 @@ export class CommandDispatcher {
         return;
       case 'theme.set':
         await this.services.settings.setTheme(message.payload.themeId);
+        return;
+      case 'chest.key.add':
+        await this.services.chest.addKey();
+        return;
+      case 'chest.key.remove':
+        await this.services.chest.removeKey();
+        return;
+      case 'chest.open':
+        await this.services.chest.open();
+        return;
+      case 'chest.close':
+        await this.services.chest.close();
+        return;
+      case 'chest.reset':
+        await this.services.chest.reset();
+        return;
+      case 'chest.configure':
+        await this.services.chest.configure(message.payload);
+        return;
+      case 'offer.start':
+        await this.services.offers.start(message.payload);
+        return;
+      case 'offer.cancel':
+        await this.services.offers.cancel();
         return;
     }
   }
